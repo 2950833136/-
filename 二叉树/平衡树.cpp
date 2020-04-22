@@ -51,40 +51,51 @@ void draw_level(TNode* root, bool left, char* str);	//画树，左右子树
 void draw(TNode* root);							//画树，根节点
 
 int main() {
-	int array[] = { 6,5,7,3,8,4,1,9,10,3,7 };
+	int array[] = { 6,5,7,3,8,4,1,9,10,3,7,15,16,20 };
 	//int array[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 };
 	//int array[] = { 20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1 };
-
 	//循环创建树
 	for (int i = 0; i < sizeof(array) / sizeof(*array); i++) {
 		insert(&tree, array[i], array[i] + 10);
 	}
-
+	printf("完成插入后的树:\n");
 	set_tree(tree);
 	draw(tree);
-	inOrder(tree);
-	printf("\n");
-
+	printf("完成平衡后的树:\n");
 	balance(tree);
 	draw(tree);
-	inOrder(tree);
-	printf("\n");
-
-	printf("添加节点：%d\n", 2);
+	printf("添加节点后的树:\n");
 	insert(&tree, 2, 12);
 	set_tree(tree);
 	balance(tree);
 	draw(tree);
+	printf("删除节点后的树:\n");
+	delete_node(tree, 10);
+	balance(tree);
+	draw(tree);
 	inOrder(tree);
 	printf("\n");
 
-	//find_node(tree, 6);
-	for (int i = 0; i < sizeof(array) / sizeof(*array); i++) {
-		printf("删除节点：%d", array[i]);
-		delete_node(tree, array[i]);
-		balance(tree);
-		draw(tree);
-	}
+	/*
+	*	大数据测试
+	*/
+	//int array[50];
+	//for (int j = 0; j < 50; j++) {
+	//	array[j] = rand() % 50;
+	//	insert(&tree, array[j], array[j] + 10);
+	//}
+	//set_tree(tree);
+	//printf("完成插入后的树:\n");
+	//draw(tree);
+	//balance(tree);
+	//printf("完成平衡后的树:\n");
+	//draw(tree);
+	//for (int i = 0; i < sizeof(array) / sizeof(*array); i++) {
+	//	printf("删除节点：%d", array[i]);
+	//	delete_node(tree, array[i]);
+	//	balance(tree);
+	//	draw(tree);
+	//}
 	return 0;
 }
 
@@ -228,6 +239,7 @@ void delete_node(TNode* root, int key) {
 			node->parent->right = node->right;
 		}
 		node->right->parent = node->parent;
+		set_tree(tree);
 	}
 	else if (node->left != NULL && node->right == NULL) {		//没有右子节点
 		if (node->parent->left == node) {
@@ -237,6 +249,7 @@ void delete_node(TNode* root, int key) {
 			node->parent->right = node->left;
 		}
 		node->left->parent = node->parent;
+		set_tree(tree);
 	}
 	else if ((node->left == NULL) && (node->right == NULL)) {	//没有子节点
 		if (node->parent->left == node) {
@@ -245,6 +258,7 @@ void delete_node(TNode* root, int key) {
 		else {
 			node->parent->right = NULL;
 		}
+		set_tree(tree);
 	}
 	else {											//双节点都有
 		tmp = find_max(node->left);
@@ -253,12 +267,14 @@ void delete_node(TNode* root, int key) {
 			node->left->parent = node->parent;
 			tmp->right = node->right;
 			node->right->parent = tmp;
+			set_tree(tree);
 		}
 		else {										//在父节点的父节点右边
 			node->parent->right = node->left;
 			node->left->parent = node->parent;
 			tmp->right = node->right;
 			node->right->parent = tmp;
+			set_tree(tree);
 		}
 	}
 }
@@ -436,8 +452,8 @@ void inOrder(TNode* root) {
 * @brief : 水平画树
 * @input :
 *   root: 树
-*   left: 判断左右
-*str : 可变字符串
+*	left: 判断左右
+*	str : 可变字符串
 * @output:
 *   none: none
 *****************************************************************************/
