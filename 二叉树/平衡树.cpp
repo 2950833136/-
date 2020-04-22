@@ -225,10 +225,15 @@ void delete_node(TNode* root, int key) {
 	node = find_node(root, key);
 	if (node->parent == NULL) {			//根节点
 		tmp = find_max(node->left);
-		tmp->right = node->right;
-		node->left->parent = NULL;
-		node->right->parent = tmp;
-		tree = node->left;
+		if (tmp != NULL) {
+			tmp->right = node->right;
+			node->left->parent = NULL;
+			node->right->parent = tmp;
+			tree = node->left;
+		}
+		else {
+			tree = node->right;
+		}
 		set_tree(tree);
 	}
 	else if (node->left == NULL && node->right != NULL) {		//没有左子节点
