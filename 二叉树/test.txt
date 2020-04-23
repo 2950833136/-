@@ -1,0 +1,8 @@
+ant:a small insect that lives in group
+bee:an animal that can pick flowers and make honey
+bear:the bear's body is thick and fat, and its hair is long and dense
+beetle:an animal that feeds on pollen and a few nectar
+dog:an animal which is loyal to human
+dove:a flighty bird that feeds mainly on cereals
+donkey:an animal with short legs and long ears
+snakes:a long and thin animal that lives in grass or other dark places
