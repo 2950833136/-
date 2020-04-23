@@ -4,22 +4,22 @@
 #include <string.h>
 #include <malloc.h>
 
-#define CHAR_SIZE	26				//×ÖÄ¸´óĞ¡
-#define KEY_SIZE	256				//¹Ø¼ü×Ö´óĞ¡
-#define DESC_SIZE	256				//ÃèÊöÇø´óĞ¡
-#define BUFF_SIZE	512				//»º³åÇø´óĞ¡	
-#define FILE_NAME	"log.txt"		//ÎÄ¼şÂ·¾¶
+#define CHAR_SIZE	26				//å­—æ¯å¤§å°
+#define KEY_SIZE	256				//å…³é”®å­—å¤§å°
+#define DESC_SIZE	256				//æè¿°åŒºå¤§å°
+#define BUFF_SIZE	512				//ç¼“å†²åŒºå¤§å°	
+#define FILE_NAME	"test.txt"		//æ–‡ä»¶è·¯å¾„
 
-typedef struct search_tree_node {				//¶¨ÒåËÑË÷Ê÷½Úµã
-	struct search_tree_node* ch[CHAR_SIZE];		//·ÖÀà
-	char desc[DESC_SIZE];						//ÃèÊö
+typedef struct search_tree_node {				//å®šä¹‰æœç´¢æ ‘èŠ‚ç‚¹
+	struct search_tree_node* ch[CHAR_SIZE];		//åˆ†ç±»
+	char desc[DESC_SIZE];						//æè¿°
 }STNode;
 
 
-int get_word(FILE* fp, char* key, char* desc);					//·ÖÀëÎÄ±¾ĞÅÏ¢
-STNode* new_node();												//ĞÂ½¨½Úµã
-int insert_st_tree(STNode** st_tree, char* key, char* desc);	//²åÈëĞÅÏ¢
-char* find(STNode* st_tree, char* key);							//²éÕÒ·ÖÀà
+int get_word(FILE* fp, char* key, char* desc);					//åˆ†ç¦»æ–‡æœ¬ä¿¡æ¯
+STNode* new_node();												//æ–°å»ºèŠ‚ç‚¹
+int insert_st_tree(STNode** st_tree, char* key, char* desc);	//æ’å…¥ä¿¡æ¯
+char* find(STNode* st_tree, char* key);							//æŸ¥æ‰¾åˆ†ç±»
 
 
 int main() {
@@ -48,10 +48,10 @@ int main() {
 
 	data = find(st_tree, (char*)"ant");
 	if (data != NULL) {
-		printf("%s", data);
+		printf("\nFind description: %s", data);
 	}
 	else {
-		printf("Can not find!\n");
+		printf("\nCan not find!\n");
 	}
 
 	fclose(fp);
@@ -61,28 +61,28 @@ int main() {
 
 /*****************************************************************************
 * @data  : 2020/4/19
-* @brief : ¶ÁÈ¡ÎÄ¼ş£¬·ÖÀë¹Ø¼ü×ÖºÍÃèÊöĞÅÏ¢
+* @brief : è¯»å–æ–‡ä»¶ï¼Œåˆ†ç¦»å…³é”®å­—å’Œæè¿°ä¿¡æ¯
 * @input :
-*   fp	: ÎÄ¼şÖ¸Õë
-*	key	: ¹Ø¼ü×Ö£¨·µ»Ø£©
-*	desc: ÃèÊöĞÅÏ¢£¨·µ»Ø£©
+*   fp	: æ–‡ä»¶æŒ‡é’ˆ
+*	key	: å…³é”®å­—ï¼ˆè¿”å›ï¼‰
+*	desc: æè¿°ä¿¡æ¯ï¼ˆè¿”å›ï¼‰
 * @output:
-*   -1	: Ê§°Ü
-*	0	: ³É¹¦
+*   -1	: å¤±è´¥
+*	0	: æˆåŠŸ
 *****************************************************************************/
 int get_word(FILE* fp, char* key, char* desc) {
 	int i, j;
 	char buff[BUFF_SIZE];
-	char* res = fgets(buff, BUFF_SIZE, fp);		//ÖğĞĞ¶ÁÈ¡£¨°üÀ¨»»ĞĞ·û£©
+	char* res = fgets(buff, BUFF_SIZE, fp);		//é€è¡Œè¯»å–ï¼ˆåŒ…æ‹¬æ¢è¡Œç¬¦ï¼‰
 	if (res == NULL) {
 		return -1;
 	}
-	for (i = 0; i < KEY_SIZE - 1 && buff[i] != ':'; i++) {	//Ô¤Áô½áÊø·û£¬·Ö¸î±êÖ¾
+	for (i = 0; i < KEY_SIZE - 1 && buff[i] != ':'; i++) {	//é¢„ç•™ç»“æŸç¬¦ï¼Œåˆ†å‰²æ ‡å¿—
 		key[i] = buff[i];
 	}
 	key[i] = '\0';
 	i++;
-	for (j = 0; j < DESC_SIZE - 1 && buff[i] != '\0'; j++, i++) {	//Ô¤Áô½áÊø·û£¬½áÊø±êÖ¾
+	for (j = 0; j < DESC_SIZE - 1 && buff[i] != '\0'; j++, i++) {	//é¢„ç•™ç»“æŸç¬¦ï¼Œç»“æŸæ ‡å¿—
 		desc[j] = buff[i];
 	}
 	desc[j] = '\0';
@@ -91,19 +91,19 @@ int get_word(FILE* fp, char* key, char* desc) {
 
 /*****************************************************************************
 * @data  : 2020/4/19
-* @brief : ´´½¨ĞÂËÑË÷Ê÷½áµã
+* @brief : åˆ›å»ºæ–°æœç´¢æ ‘ç»“ç‚¹
 * @input :
 *   none : none
 * @output:
-*   node : ³õÊ¼»¯µÄĞÂ½áµã
+*   node : åˆå§‹åŒ–çš„æ–°ç»“ç‚¹
 *****************************************************************************/
 STNode* new_node() {
 	STNode* node;
-	node = (STNode*)malloc(sizeof(STNode));		//·ÖÅäÒ»¸ö¿Õ¼ä
+	node = (STNode*)malloc(sizeof(STNode));		//åˆ†é…ä¸€ä¸ªç©ºé—´
 	if (node == NULL) {
 		return NULL;
 	}
-	for (int i = 0; i < CHAR_SIZE; i++) {		//³õÊ¼»¯
+	for (int i = 0; i < CHAR_SIZE; i++) {		//åˆå§‹åŒ–
 		node->ch[i] = NULL;
 	}
 	node->desc[0] = '\0';
@@ -112,14 +112,14 @@ STNode* new_node() {
 
 /*****************************************************************************
 * @data  : 2020/4/19
-* @brief : ´´½¨ËÑË÷Ê÷
+* @brief : åˆ›å»ºæœç´¢æ ‘
 * @input :
-*   st_tree	: ¶ş¼¶Ö¸Õë´´½¨ËÑË÷Ê÷
-*	key		: ¹Ø¼ü×Ö
-*	desc	: ÃèÊöĞÅÏ¢
+*   st_tree	: äºŒçº§æŒ‡é’ˆåˆ›å»ºæœç´¢æ ‘
+*	key		: å…³é”®å­—
+*	desc	: æè¿°ä¿¡æ¯
 * @output:
-*   -1		: Ê§°Ü
-*	0		: ³É¹¦
+*   -1		: å¤±è´¥
+*	0		: æˆåŠŸ
 *****************************************************************************/
 int insert_st_tree(STNode** st_tree, char* key, char* desc) {
 	if (*st_tree == NULL) {
@@ -132,29 +132,29 @@ int insert_st_tree(STNode** st_tree, char* key, char* desc) {
 		strcpy((*st_tree)->desc, desc);
 		return 0;
 	}
-	//µİ¹é´´½¨£¬ÒòÎªÒÔĞ¡Ğ´Ó¢ÎÄ×ÖÄ¸ÎªÀı£¨26£©£¬ASCIIÂë¼õÈ¥'a'£¬µÃµ½Ö¸ÕëÏà¶ÔµØÖ·£¨»òÊı×éÏÂ±ê£©
+	//é€’å½’åˆ›å»ºï¼Œå› ä¸ºä»¥å°å†™è‹±æ–‡å­—æ¯ä¸ºä¾‹ï¼ˆ26ï¼‰ï¼ŒASCIIç å‡å»'a'ï¼Œå¾—åˆ°æŒ‡é’ˆç›¸å¯¹åœ°å€ï¼ˆæˆ–æ•°ç»„ä¸‹æ ‡ï¼‰
 	return insert_st_tree((*st_tree)->ch + *key - 'a', key + 1, desc);
 }
 
 /*****************************************************************************
 * @data  : 2020/4/19
-* @brief : Ê¹ÓÃËÑË÷Ê÷²éÑ¯¹Ø¼ü×ÖÃèÊö£¨ÓĞ·µ»Ø£¬ÎŞ£©
+* @brief : ä½¿ç”¨æœç´¢æ ‘æŸ¥è¯¢å…³é”®å­—æè¿°ï¼ˆæœ‰è¿”å›ï¼Œæ— ï¼‰
 * @input :
-*   st_tree	: ËÑË÷Ê÷
-*	key		: ¹Ø¼ü×Ö
+*   st_tree	: æœç´¢æ ‘
+*	key		: å…³é”®å­—
 * @output:
-*   desc	: ÃèÊöĞÅÏ¢
-*	NULL	: ¿Õ
+*   desc	: æè¿°ä¿¡æ¯
+*	NULL	: ç©º
 *****************************************************************************/
 char* find(STNode* st_tree, char* key) {
-	if (st_tree == NULL) {	//Îª¿Õ£¬·µ»Ø NULL
+	if (st_tree == NULL) {	//ä¸ºç©ºï¼Œè¿”å› NULL
 		return NULL;
 	}
-	if (*key == '\0') {		//ÍêÈ«Æ¥Åä£¬·µ»ØÃèÊöĞÅÏ¢
+	if (*key == '\0') {		//å®Œå…¨åŒ¹é…ï¼Œè¿”å›æè¿°ä¿¡æ¯
 		if (st_tree->desc[0] == '\0') {
 			return NULL;
 		}
 		return st_tree->desc;
 	}
-	return find(st_tree->ch[*key - 'a'], key + 1);	//µİ¹é²éÕÒ
+	return find(st_tree->ch[*key - 'a'], key + 1);	//é€’å½’æŸ¥æ‰¾
 }
