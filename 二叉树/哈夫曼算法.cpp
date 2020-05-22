@@ -1,120 +1,266 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include<stdio.h>
+#include <stdio.h>
+#include <malloc.h>
+#include <string.h>
 
-#define MAX_SIZE	64
+#define Elemtype	int			//å®å®šä¹‰ç±»å‹ï¼ŒåæœŸä¾¿äºä¿®æ”¹
+#define CODE_SIZE	64			//è‡³å°‘æ˜¯ 2*N-1
+#define BUFF_SIZE	1024		//è¾“å…¥å­—ç¬¦ä¸²ç¼“å†²åŒº
+#define SPACE_SIZE	1024		//ç”»æ ‘çš„ç¼“å†²åŒº
 
-typedef struct node {			//¶¨Òå¹ş·òÂü½áµãÀàĞÍ 
-	char data;					//½áµãÖµ 
-	int weight;					//È¨ÖØ 
-	int parent;					//¸¸½áµã 
-	int lchild;					//×óº¢×Ó½áµã 
-	int rchild;					//ÓÒº¢×Ó½áµã 
+typedef struct node {			//å®šä¹‰å“ˆå¤«æ›¼ç»“ç‚¹ç±»å‹ 
+	char data;					//ç»“ç‚¹å€¼ 
+	Elemtype weight;			//æƒé‡ 
+	struct node* parent;		//çˆ¶ç»“ç‚¹ ï¼ˆæœ€åå‘ç°å¥½åƒæ²¡ç”¨åˆ°ï¼‰
+	struct node* lchild;		//å·¦å­©å­ç»“ç‚¹ 
+	struct node* rchild;		//å³å­©å­ç»“ç‚¹ 
 }HTNode;
 
 typedef struct code {
-	char cd[MAX_SIZE];			//´æ·ÅµÄ¹ş·òÂüÂë 
-	int start;					//¼ÇÂ¼cd[]±àÒë¹ş·òÂüÂëµÄÆğÊ¼Î»ÖÃ 
+	char data;					//ç»“ç‚¹å€¼ 
+	char cd[CODE_SIZE];			//å­˜æ”¾çš„å“ˆå¤«æ›¼ç  
 }HCode;
 
-//´´½¨¹ş·òÂüÊ÷ 
-void createHT(HTNode HT[], int n) {
-	int i, k;
-	int lnode, rnode;
-	double min1, min2;
-	for (i = 0; i < 2 * n - 1; i++) {						//ËùÓĞ½áµãµÄÏà¹ØÓòÖµ³õÖµ -1 
-		HT[i].parent = HT[i].lchild = HT[i].rchild = -1;
-	}
-	for (i = n; i <= 2 * n - 2; i++) {
-		min1 = min2 = 32767;
-		lnode = rnode = -1;
-		for (k = 0; k <= i - 1; k++) {
-			if (HT[k].parent == -1) {						//Ö»ÔÚÉĞÎ´¹¹Ôì¶ş²æÊ÷ÖĞ²éÕÒ 
-				if (HT[k].weight < min1) {					//È¨ÖØ±È×ó±ßĞ¡ 
-					min2 = min1;							//±£Ö¤×ó±ßµÄ×îĞ¡ 
-					rnode = lnode;
-					min1 = HT[k].weight;					//¼ÇÂ¼È¨ÖØ 
-					lnode = k;								//¼ÇÂ¼ÏÂ±ê 
-				}
-				else if (HT[k].weight < min2) {				//È¨ÖØ±ÈÓÒ±ßĞ¡ 
-					min2 = HT[k].weight;
-					rnode = k;
-				}
-			}
-		}
-		HT[i].weight = HT[lnode].weight + HT[rnode].weight;	//ºÏ²¢ºóµÄÈ¨ÖØ 
-		HT[i].lchild = lnode;								//HT[i]×÷Îª¸¸½áµã 
-		HT[i].rchild = rnode;
-		HT[lnode].parent = i;
-		HT[rnode].parent = i;
-	}
-}
-
-//¹ş·òÂü±àÂë
-void createHCode(HTNode HT[], HCode HC[], int n) {
-	int f;													//¸¸½áµã 
-	int c;
-	HCode hc;
-	for (int i = 0; i < n; i++) {
-		hc.start = n;										//¿ªÊ¼Î»ÖÃ,µ¹Ğğ²åÈë 
-		c = i;												//³õÊ¼
-		f = HT[i].parent;									//f ±£´æ¸Ã½áµã¸¸½áµã 
-		while (f != -1) {									//ÒòÎª´´½¨¹ş·òÂüÊ÷Ê±£¬ËùÓĞÎŞ¹Ø¶¼ÖÃ -1£¬ËùÒÔ¸ù½áµã¸¸½áµãÎª -1£¬±íÊ¾½áÊø 
-			if (HT[f].lchild == c) {						//×ó±ß¾ÍÑ¹Èë 0 
-				hc.cd[hc.start] = 0;
-				hc.start--;
-			}
-			if (HT[f].rchild == c) {						//ÓÒ±ß¾ÍÑ¹Èë 1 
-				hc.cd[hc.start] = 1;
-				hc.start--;
-			}
-			c = f;											//´ËÊ±¸¸½áµãµ±×÷×Ó½áµã 
-			f = HT[f].parent;								//ÏòÉÏ±éÀú£¬¸¸½áµã½øĞĞÍ¬Ñù²Ù×÷
-		}
-		hc.start++;											//¼ÇÂ¼¹ş·òÂü±àÂë×î¿ªÊ¼µÄ×Ö·ûÎ»ÖÃ 
-		HC[i] = hc;											//Ò»¸ö¹ş·òÂü½áµãµÄ±àÂë 
-	}
-}
+HTNode** input(int n);												//è¾“å…¥ä¿¡æ¯
+HTNode* newNode(char data, Elemtype weight);						//åˆ›å»ºåˆå§‹åŒ–æ–°ç»“ç‚¹
+void BubbleSort(HTNode** HT, int start, int end);					//å†’æ³¡æ’åº
+void createHT(HTNode** HT, int n);									//åˆ›å»ºå“ˆå¤«æ›¼æ ‘
+void draw_level(HTNode* root, bool lchild, char* str);				//ç”»å·¦å³å­æ ‘
+void draw(HTNode* root);											//ç”»æ ¹èŠ‚ç‚¹
+int createHC(HTNode* HT, HCode* HC, char array[], int n, int m);	//åˆ›å»ºå“ˆå¤«æ›¼ç 
+void showHC(HCode* HC, int n);										//æ˜¾ç¤ºå“ˆå¤«æ›¼ç 
+void encode(HCode* HC, int n, char* str, char* binary);				//åŠ å¯†
+int compare(HCode* HC, int n, char* str);							//äºŒè¿›åˆ¶ä¸²æ¯”è¾ƒ
+void decode(HCode* HC, int n, char* binary, char* str);				//è§£å¯†
 
 int main() {
-	//Àı×Ó£º8
+	//ä¾‹å­ï¼š8
 	//A 7 B 19 C 2 D 6 E 32 F 3 G 21 H 10
-	printf("ÇëÊäÈë¹ş·òÂüÒ¶×Ó½áµã£º");
-	int N;													//Ò¶×Ó½áµã¸öÊı 
-	scanf("%d", &N);
-	HTNode HT[MAX_SIZE];
+	HTNode** HT = (HTNode**)malloc(sizeof(HTNode*) * CODE_SIZE);
+	HCode* HC = (HCode*)malloc(sizeof(HCode) * CODE_SIZE);
+	char* str = (char*)malloc(sizeof(char) * BUFF_SIZE);
+	char* binary = (char*)malloc(sizeof(char) * BUFF_SIZE * 4);
+	char array[CODE_SIZE];
 	int n = 0;
-	char data;
-	int weight;
-	printf("ÇëÊäÈë½áµãºÍÈ¨Öµ(ÀıÈçA 1)£º\n");				//¹æÂÉ£¬×Ü½áµã¸öÊıÎªÒ¶×Ó½áµãÁ½±¶¼õÒ»£¬2*N-1 
-	while (n / 2 < N) {										//Õâ¶ùÓĞµã¿Ó£¬²»ÖªµÀÎªÊ²Ã´ scanf ÊäÈëÒ»¸öÑ­»·Ò»´Î 
-		scanf("%c %d", &data, &weight);  					//ËùÒÔÊäÈëÁ½¸ö£¬Ñ­»·Á½´Î£¬ËùÒÔ³ıÒÔ 2 
-		HT[n / 2].data = data;
-		HT[n / 2].weight = weight;
-		n++;
-	}
+	memset(array, 0, CODE_SIZE);
+	memset(binary, 0, BUFF_SIZE * 4);
 
-	createHT(HT, N);
-	printf("´´½¨³É¹¦\n");
-	for (int i = 0; i < 2 * N - 1; i++) {					//¸÷ÖÖÊôĞÔ£¬Êä³ö¿´Ò»¿´£¬ÓĞÃ»ÓĞÎÊÌâ 
-		printf("%2d  ", i);
-		printf("%3d ", HT[i].weight);
-		printf("%2d ", HT[i].parent);
-		printf("%2d ", HT[i].lchild);
-		printf("%2d \n", HT[i].rchild);
-	}
-	printf("\n");
+	printf("è¯·è¾“å…¥å“ˆå¤«æ›¼å¶å­ç»“ç‚¹ï¼š");
+	scanf("%d", &n);
+	HT = input(n);
+	createHT(HT, n);
+	draw(HT[2 * n - 2]);
+	createHC(HT[2 * n - 2], HC, array, 0, 0);
+	showHC(HC, n);
+	printf("è¯·è¾“å…¥ç¼–ç çš„å­—ç¬¦ä¸²ï¼š");
+	scanf("%s", str);
+	encode(HC, n, str, binary);
+	printf("å“ˆå¤«æ›¼ç¼–ç ä¸ºï¼š%s\n", binary);
+	memset(str, 0, BUFF_SIZE);
+	decode(HC, n, binary, str);
+	printf("å“ˆå¤«æ›¼è¯‘ç ä¸ºï¼š%s\n", str);
 
-	HCode HC[MAX_SIZE];
-	createHCode(HT, HC, N);
-	printf("±àÂë³É¹¦\n");
-	for (int i = 0; i < N; i++) {							//ÍâÑ­»·Êä³öÃ¿¸ö¹ş·òÂü±àÂë 
-		printf("%c¡ª¡ª", HT[i].data);
-		for (int j = HC[i].start; j <= N; j++) {			//ÄÚÑ­»·Êä³ö¹ş·òÂü±àÂë£¬HC[i].start ±àÂëÆğÊ¼Î»ÖÃ 
-			printf("%d", HC[i].cd[j]);
+	return 0;
+}
+
+void decode(HCode* HC, int n, char* binary, char* str) {
+	int len = strlen(binary);
+	char* tmp = (char*)malloc(sizeof(char) * CODE_SIZE);
+	int size = 1;		//æ¯”è¾ƒé•¿åº¦
+	int ret = 0;		//è¿”å›å€¼
+	int pos = 0;		//åç§»ï¼ˆä¸‹æ ‡ï¼‰
+	int index = 0;		//ä¸‹æ ‡
+	while (pos < len) {
+		memset(tmp, 0, CODE_SIZE);
+		strncpy(tmp, binary + pos, size);
+		//printf("%s\n", tmp);
+		ret = compare(HC, n, tmp);
+		if (ret < 0) {
+			size++;
+		}
+		else {
+			pos += size;
+			size = 1;
+			str[index] = HC[ret].data;
+			index++;
+		}
+	}
+	str[strlen(str)] = '\0';
+}
+
+int compare(HCode* HC, int n, char* str) {
+	for (int i = 0; i < n; i++) {
+		if (strcmp(HC[i].cd, str) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+void encode(HCode* HC, int n, char* str, char* binary) {
+	int len = strlen(str);
+	for (int i = 0; i < len; i++) {
+		/*
+		* è¿™é‡Œå¯ä»¥åŠ ä¸ªåˆ¤æ–­è·³è¿‡ç©ºæ ¼
+		*/
+		for (int j = 0; j < n; j++) {
+			if (str[i] == HC[j].data) {
+				strncat(binary, HC[j].cd, strlen(HC[j].cd));
+			}
+		}
+	}
+	binary[strlen(binary)] = '\0';
+}
+
+void showHC(HCode* HC, int n) {
+	for (int i = 0; i < n; i++) {
+		printf("%c----", HC[i].data);
+		for (int j = 0; j < strlen(HC[i].cd); j++) {
+			printf("%c", HC[i].cd[j]);
 		}
 		printf("\n");
 	}
+}
 
-	return 0;
+/*****************************************************************************
+* @data  : 2020/5/22
+* @brief : åˆ›å»ºå“ˆå¤«æ›¼ç 
+* @param :
+*   HT : å“ˆå¤«æ›¼æ ‘æ ¹èŠ‚ç‚¹
+*   HC : å­˜æ”¾å“ˆå¤«æ›¼ç æŒ‡é’ˆ
+*   array : é€šç”¨æš‚æ—¶å­˜æ”¾å“ˆå¤«æ›¼ç ï¼ˆæˆªæ–­ï¼‰
+*   n : ä¼ é€’ä¸‹æ ‡
+*   m : å›æº¯æ ‘é«˜ï¼ˆå±‚æ¬¡ï¼‰
+* @return:
+*   n : ç¬¬ n ä¸ªå­—æ¯
+*****************************************************************************/
+int createHC(HTNode* HT, HCode* HC, char array[], int n, int m) {
+	if (HT->data != '#') {
+		HC[n].data = HT->data;
+		array[m] = '\0';
+		memcpy(HC[n].cd, array, CODE_SIZE);
+		n++;
+	}
+	if (HT->lchild != NULL) {
+		array[m] = '0';
+		n = createHC(HT->lchild, HC, array, n, m + 1);
+	}
+	if (HT->rchild != NULL) {
+		array[m] = '1';
+		n = createHC(HT->rchild, HC, array, n, m + 1);
+	}
+	return n;
+}
+
+void draw_level(HTNode* root, bool lchild, char* str) {
+	if (root->rchild) {
+		draw_level(root->rchild, false, strcat(str, (lchild ? "|     " : "      ")));
+	}
+	printf("%s", str);
+	printf("%c", (lchild ? '\\' : '/'));
+	printf("-----");
+
+	printf("%c ", root->data);
+	printf("%d\n", root->weight);
+	if (root->lchild) {
+		draw_level(root->lchild, true, strcat(str, (lchild ? "      " : "|     ")));
+	}
+	//"|     " çš„é•¿åº¦
+	str[strlen(str) - 6] = '\0';
+}
+
+void draw(HTNode* root) {
+	char str[SPACE_SIZE];
+	memset(str, '\0', SPACE_SIZE);
+	if (root == NULL) {
+		return;
+	}
+	if (root->rchild) {
+		draw_level(root->rchild, false, str);
+	}
+	printf("%c ", root->data);
+	printf("%d\n", root->weight);
+	if (root->lchild) {
+		draw_level(root->lchild, true, str);
+	}
+	printf("\n");
+}
+
+/*****************************************************************************
+* @data  : 2020/5/22
+* @brief : åˆ›å»ºå“ˆå¤«æ›¼æ ‘ï¼ˆäºŒçº§æŒ‡é’ˆï¼‰
+* @param :
+*   HT : å“ˆå¤«æ›¼æ ‘
+*   n  : å­—æ¯ä¸ªæ•°
+*****************************************************************************/
+void createHT(HTNode** HT, int n) {
+	int start = 0;		//è®°å½•æœªåˆ›å»ºï¼ˆæœªæ’åºï¼‰çš„ä¸‹æ ‡
+	int end = n;		//è®°å½•ç”Ÿæˆçš„æ–°æ•°æ®
+	char data;			//å­—æ¯
+	Elemtype weight;	//ä¿å­˜åˆå¹¶åçš„æƒé‡
+
+	while (end - start > 1) {
+		BubbleSort(HT, start, end);
+		data = '#';
+		weight = HT[start]->weight + HT[start + 1]->weight;
+		HT[end] = newNode(data, weight);
+		HT[end]->lchild = HT[start];
+		HT[end]->rchild = HT[start + 1];
+		HT[start]->parent = HT[end];
+		HT[start + 1]->parent = HT[end];
+
+		start += 2;
+		end++;
+	}
+	//printf("index\tdata\tweight\n");
+	//for (int i = 0; i < 2 * n - 1; i++) {		//å„ç§å±æ€§ï¼Œè¾“å‡ºçœ‹ä¸€çœ‹ï¼Œæœ‰æ²¡æœ‰é—®é¢˜ 
+	//	printf("%5d\t", i);
+	//	printf("%4c\t", HT[i]->data);
+	//	printf("%6d\n", HT[i]->weight);
+	//}
+}
+
+void BubbleSort(HTNode** HT, int start, int end) {
+	for (int i = start; i < end - 1; i++) {
+		for (int j = end - 1; j > i; j--) {
+			if (HT[j]->weight < HT[j - 1]->weight) {
+				HTNode* node;
+				node = HT[j - 1];
+				HT[j - 1] = HT[j];
+				HT[j] = node;
+			}
+		}
+	}
+}
+
+HTNode* newNode(char data, Elemtype weight) {
+	HTNode* node = (HTNode*)malloc(sizeof(HTNode));
+	node->data = data;
+	node->weight = weight;
+	node->parent = NULL;
+	node->lchild = NULL;
+	node->rchild = NULL;
+	return node;
+}
+
+HTNode** input(int n) {
+	int i = 0;
+	char data;
+	Elemtype weight;
+	char dataArray[CODE_SIZE];
+	Elemtype weightArray[CODE_SIZE];
+	HTNode** node = (HTNode**)malloc(sizeof(HTNode*) * CODE_SIZE);
+
+	printf("è¯·è¾“å…¥ç»“ç‚¹å’Œæƒå€¼(ä¾‹å¦‚A 1)ï¼š\n");     //è§„å¾‹ï¼Œæ€»ç»“ç‚¹ä¸ªæ•°ä¸ºå¶å­ç»“ç‚¹ä¸¤å€å‡ä¸€ï¼Œ2*N-1 
+	while (i / 2 < n) {							//scanf è¯»å–ç©ºæ ¼æˆªæ­¢
+		scanf("%c %d", &data, &weight);  		//æ‰€ä»¥è¾“å…¥ä¸¤ä¸ªï¼Œå¾ªç¯ä¸¤æ¬¡ï¼Œæ‰€ä»¥é™¤ä»¥ 2
+		dataArray[i / 2] = data;
+		weightArray[i / 2] = weight;
+		i++;
+	}
+	for (int j = 0; j < n; j++) {
+		node[j] = newNode(dataArray[j], weightArray[j]);
+	}
+	return node;
 }
