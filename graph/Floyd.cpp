@@ -1,209 +1,205 @@
-#include<stdio.h>
-#include<malloc.h>
+#include <malloc.h>
+#include <stdio.h>
 
-#define MAXV 7					//×î´ó¶¥µã¸öÊı 
-#define INF 32767				//¶¨Òå ¡Ş
-//¡Ş == 32767 ,int ĞÍµÄ×î´ó·¶Î§£¨2Î»£©= 2^(2*8-1)£¬TC¸æËßÎÒÃÇintÕ¼ÓÃ2¸ö×Ö½Ú£¬¶øVCºÍLGCC¸æËßÎÒÃÇintÕ¼ÓÃ4¸ö×Ö½Ú
-//Í¼£ºLGraph
-//¶¥µã£ºVertex
-//ÁÚ½Ó£ºAdjacency
-//¾ØÕó£ºMatrix
-//±í£ºList
-//±ß£ºEdLGe 
+#define MAXV 7     //æœ€å¤§é¡¶ç‚¹ä¸ªæ•°
+#define INF  32767 //å®šä¹‰ âˆ
+//âˆ == 32767 ,int å‹çš„æœ€å¤§èŒƒå›´ï¼ˆ2ä½ï¼‰= 2^(2*8-1)ï¼ŒTCå‘Šè¯‰æˆ‘ä»¬intå ç”¨2ä¸ªå­—èŠ‚ï¼Œè€ŒVCå’ŒLGCCå‘Šè¯‰æˆ‘ä»¬intå ç”¨4ä¸ªå­—èŠ‚
+//å›¾ï¼šLGraph
+//é¡¶ç‚¹ï¼šVertex
+//é‚»æ¥ï¼šAdjacency
+//çŸ©é˜µï¼šMatrix
+//è¡¨ï¼šList
+//è¾¹ï¼šEdLGe
 
 typedef struct vertex {
-	int number;					//¶¥µãµÄ±àºÅ 	
-}VertexType; 					//±ğÃû£¬¶¥µãµÄÀàĞÍ 
+    int number; //é¡¶ç‚¹çš„ç¼–å·
+} VertexType;   //åˆ«åï¼Œé¡¶ç‚¹çš„ç±»å‹
 
 typedef struct matrix {
-	int n;						//¶¥µã¸öÊı
-	int e;						//±ßÊı 
-	int adjMat[MAXV][MAXV];		//ÁÚ½Ó¾ØÕóÊı×é			
-	VertexType ver[MAXV];		//´æ·Å¶¥µãĞÅÏ¢ 
-}MatGraph;						//±ğÃû£¬ÍêÕûµÄÍ¼ÁÚ½Ó¾ØÕóÀàĞÍ
+    int        n;                  //é¡¶ç‚¹ä¸ªæ•°
+    int        e;                  //è¾¹æ•°
+    int        adjMat[MAXV][MAXV]; //é‚»æ¥çŸ©é˜µæ•°ç»„
+    VertexType ver[MAXV];          //å­˜æ”¾é¡¶ç‚¹ä¿¡æ¯
+} MatGraph;                        //åˆ«åï¼Œå®Œæ•´çš„å›¾é‚»æ¥çŸ©é˜µç±»å‹
 
 typedef struct eNode {
-	int adjVer;					//¸Ã±ßµÄÁÚ½Óµã±àºÅ 
-	int weiLGht;				//¸Ã±ßµÄµÄĞÅÏ¢£¬ÈçÈ¨Öµ 
-	struct eNode* nextEdLGe;	//Ö¸ÏòÏÂÒ»Ìõ±ßµÄÖ¸Õë 
-}EdgeNode; 						//±ğÃû£¬±ß½áµãµÄÀàĞÍ 
+    int           adjVer;    //è¯¥è¾¹çš„é‚»æ¥ç‚¹ç¼–å·
+    int           weiLGht;   //è¯¥è¾¹çš„çš„ä¿¡æ¯ï¼Œå¦‚æƒå€¼
+    struct eNode* nextEdLGe; //æŒ‡å‘ä¸‹ä¸€æ¡è¾¹çš„æŒ‡é’ˆ
+} EdgeNode;                  //åˆ«åï¼Œè¾¹ç»“ç‚¹çš„ç±»å‹
 
 typedef struct vNode {
-	EdgeNode* firstEdLGe;		//Ö¸ÏòµÚÒ»¸ö±ß½áµã 
-}VNode; 						//±ğÃû£¬ÁÚ½Ó±íµÄÍ·½áµãÀàĞÍ 
+    EdgeNode* firstEdLGe; //æŒ‡å‘ç¬¬ä¸€ä¸ªè¾¹ç»“ç‚¹
+} VNode;                  //åˆ«åï¼Œé‚»æ¥è¡¨çš„å¤´ç»“ç‚¹ç±»å‹
 
 typedef struct list {
-	int n;						//¶¥µã¸öÊı
-	int e;						//±ßÊı
-	VNode adjList[MAXV];		//ÁÚ½Ó±íµÄÍ·½áµãÊı×é 
-}ListGraph;						//±ğÃû£¬ÍêÕûµÄÍ¼ÁÚ½Ó±íÀàĞÍ 
+    int   n;             //é¡¶ç‚¹ä¸ªæ•°
+    int   e;             //è¾¹æ•°
+    VNode adjList[MAXV]; //é‚»æ¥è¡¨çš„å¤´ç»“ç‚¹æ•°ç»„
+} ListGraph;             //åˆ«åï¼Œå®Œæ•´çš„å›¾é‚»æ¥è¡¨ç±»å‹
 
-//´´½¨Í¼µÄÁÚ½Ó±í 
+//åˆ›å»ºå›¾çš„é‚»æ¥è¡¨
 void createAdjListGraph(ListGraph*& LG, int A[MAXV][MAXV], int n, int e) {
-	int i, j;
-	EdgeNode* p;
-	LG = (ListGraph*)malloc(sizeof(ListGraph));
-	for (i = 0; i < n; i++) {
-		LG->adjList[i].firstEdLGe = NULL;						//¸øÁÚ½Ó±íÖĞËùÓĞÍ·½áµãÖ¸ÕëÓòÖÃ³õÖµ 
-	}
-	for (i = 0; i < n; i++) {									//¼ì²éÁÚ½Ó¾ØÕóÖĞµÄÃ¿¸öÔªËØ 
-		for (j = n - 1; j >= 0; j--) {
-			if (A[i][j] != 0) {									//´æÔÚÒ»Ìõ±ß 
-				p = (EdgeNode*)malloc(sizeof(EdgeNode));		//ÉêÇëÒ»¸ö½áµãÄÚ´æ
-				p->adjVer = j;									//´æ·ÅÁÚ½Óµã 
-				p->weiLGht = A[i][j];							//´æ·ÅÈ¨Öµ
-				p->nextEdLGe = NULL;
+    int       i, j;
+    EdgeNode* p;
+    LG = (ListGraph*)malloc(sizeof(ListGraph));
+    for (i = 0; i < n; i++) {
+        LG->adjList[i].firstEdLGe = NULL; //ç»™é‚»æ¥è¡¨ä¸­æ‰€æœ‰å¤´ç»“ç‚¹æŒ‡é’ˆåŸŸç½®åˆå€¼
+    }
+    for (i = 0; i < n; i++) { //æ£€æŸ¥é‚»æ¥çŸ©é˜µä¸­çš„æ¯ä¸ªå…ƒç´ 
+        for (j = n - 1; j >= 0; j--) {
+            if (A[i][j] != 0) {                                     //å­˜åœ¨ä¸€æ¡è¾¹
+                p            = (EdgeNode*)malloc(sizeof(EdgeNode)); //ç”³è¯·ä¸€ä¸ªç»“ç‚¹å†…å­˜
+                p->adjVer    = j;                                   //å­˜æ”¾é‚»æ¥ç‚¹
+                p->weiLGht   = A[i][j];                             //å­˜æ”¾æƒå€¼
+                p->nextEdLGe = NULL;
 
-				p->nextEdLGe = LG->adjList[i].firstEdLGe;		//Í·²å·¨ 
-				LG->adjList[i].firstEdLGe = p;
-			}
-		}
-	}
-	LG->n = n;
-	LG->e = e;
+                p->nextEdLGe              = LG->adjList[i].firstEdLGe; //å¤´æ’æ³•
+                LG->adjList[i].firstEdLGe = p;
+            }
+        }
+    }
+    LG->n = n;
+    LG->e = e;
 }
 
-//Êä³öÁÚ½Ó±í 
+//è¾“å‡ºé‚»æ¥è¡¨
 void displayAdjList(ListGraph* LG) {
-	int i;
-	EdgeNode* p;
-	for (i = 0; i < MAXV; i++) {
-		p = LG->adjList[i].firstEdLGe;
-		printf("%d:", i);
-		while (p != NULL) {
-			if (p->weiLGht != 32767) {
-				printf("%2d[%d]->", p->adjVer, p->weiLGht);
-			}
-			p = p->nextEdLGe;
-		}
-		printf(" NULL\n");
-	}
+    int       i;
+    EdgeNode* p;
+    for (i = 0; i < MAXV; i++) {
+        p = LG->adjList[i].firstEdLGe;
+        printf("%d:", i);
+        while (p != NULL) {
+            if (p->weiLGht != 32767) {
+                printf("%2d[%d]->", p->adjVer, p->weiLGht);
+            }
+            p = p->nextEdLGe;
+        }
+        printf(" NULL\n");
+    }
 }
 
-//Êä³öÁÚ½Ó¾ØÕó
+//è¾“å‡ºé‚»æ¥çŸ©é˜µ
 void displayAdjMat(MatGraph MG) {
-	int i, j;
-	for (i = 0; i < MAXV; i++) {
-		for (j = 0; j < MAXV; j++) {
-			if (MG.adjMat[i][j] == 0) {
-				printf("%4s", "0");
-			}
-			else if (MG.adjMat[i][j] == 32767) {
-				printf("%4s", "¡Ş");
-			}
-			else {
-				printf("%4d", MG.adjMat[i][j]);
-			}
-		}
-		printf("\n");
-	}
+    int i, j;
+    for (i = 0; i < MAXV; i++) {
+        for (j = 0; j < MAXV; j++) {
+            if (MG.adjMat[i][j] == 0) {
+                printf("%4s", "0");
+            } else if (MG.adjMat[i][j] == 32767) {
+                printf("%4s", "âˆ");
+            } else {
+                printf("%4d", MG.adjMat[i][j]);
+            }
+        }
+        printf("\n");
+    }
 }
 
-//ÁÚ½Ó±í×ª»»ÎªÁÚ½Ó¾ØÕó
+//é‚»æ¥è¡¨è½¬æ¢ä¸ºé‚»æ¥çŸ©é˜µ
 void ListToMat(ListGraph* LG, MatGraph& MG) {
-	int i, j;
-	EdgeNode* p;
-	for (i = 0; i < MAXV; i++) {
-		for (j = 0; j < MAXV; j++) {
-			MG.adjMat[i][j] = 0;
-		}
-	}
-	for (i = 0; i < LG->n; i++) {
-		p = LG->adjList[i].firstEdLGe;
-		while (p != NULL) {
-			MG.adjMat[i][p->adjVer] = p->weiLGht;
-			p = p->nextEdLGe;
-		}
-	}
-	MG.n = LG->n;
-	MG.e = LG->e;
+    int       i, j;
+    EdgeNode* p;
+    for (i = 0; i < MAXV; i++) {
+        for (j = 0; j < MAXV; j++) {
+            MG.adjMat[i][j] = 0;
+        }
+    }
+    for (i = 0; i < LG->n; i++) {
+        p = LG->adjList[i].firstEdLGe;
+        while (p != NULL) {
+            MG.adjMat[i][p->adjVer] = p->weiLGht;
+            p                       = p->nextEdLGe;
+        }
+    }
+    MG.n = LG->n;
+    MG.e = LG->e;
 }
 
-//Êä³ö¶àÔ´×î¶ÌÂ·¾¶
+//è¾“å‡ºå¤šæºæœ€çŸ­è·¯å¾„
 void displayPath(MatGraph MG, int A[MAXV][MAXV], int path[MAXV][MAXV]) {
-	int i, j, k;
-	int s;
-	int aPath[MAXV];										//´æ·ÅÒ»Ìõ×î¶ÌÂ·¾¶£¨ÄæÏò£©
-	int d;													//¶¥µã¸öÊı
-	for (i = 0; i < MG.n; i++) {
-		for (j = 0; j < MG.n; j++) {
-			if (A[i][j] != INF && i != j) {					//Èô¶¥µã i ºÍ ¶¥µã j Ö®¼ä´æÔÚÂ·¾¶
-				printf("´Ó %d µ½ %d µÄÂ·¾¶Îª£º", i, j);
-				k = path[i][j];
-				d = 0;
-				aPath[d] = j;								//Â·¾¶ÉÏÌí¼ÓÖÕµã
-				while (k != -1 && k != i) {					//Â·¾¢ÉÏÌí¼ÓÖĞ¼äµã
-					d++;
-					aPath[d] = k;
-					k = path[i][k];
-				}
-				d++;
-				aPath[d] = i;								//Â·¾¶ÉÏÌí¼ÓÆğµã
-				printf("%d", aPath[d]);						//Êä³öÆğµã
-				for (s = d - 1; s >= 0; s--) {				//Êä³öÂ·¾¶ÉÏÆäËû¶¥µã
-					printf("->%d", aPath[s]);
-				}
-				printf("\t\t");
-				printf("Â·¾¶³¤¶ÈÎª£º%d\n", A[i][j]);
-			}
-		}
-	}
+    int i, j, k;
+    int s;
+    int aPath[MAXV]; //å­˜æ”¾ä¸€æ¡æœ€çŸ­è·¯å¾„ï¼ˆé€†å‘ï¼‰
+    int d;           //é¡¶ç‚¹ä¸ªæ•°
+    for (i = 0; i < MG.n; i++) {
+        for (j = 0; j < MG.n; j++) {
+            if (A[i][j] != INF && i != j) { //è‹¥é¡¶ç‚¹ i å’Œ é¡¶ç‚¹ j ä¹‹é—´å­˜åœ¨è·¯å¾„
+                printf("ä» %d åˆ° %d çš„è·¯å¾„ä¸ºï¼š", i, j);
+                k        = path[i][j];
+                d        = 0;
+                aPath[d] = j;               //è·¯å¾„ä¸Šæ·»åŠ ç»ˆç‚¹
+                while (k != -1 && k != i) { //è·¯åŠ²ä¸Šæ·»åŠ ä¸­é—´ç‚¹
+                    d++;
+                    aPath[d] = k;
+                    k        = path[i][k];
+                }
+                d++;
+                aPath[d] = i;                  //è·¯å¾„ä¸Šæ·»åŠ èµ·ç‚¹
+                printf("%d", aPath[d]);        //è¾“å‡ºèµ·ç‚¹
+                for (s = d - 1; s >= 0; s--) { //è¾“å‡ºè·¯å¾„ä¸Šå…¶ä»–é¡¶ç‚¹
+                    printf("->%d", aPath[s]);
+                }
+                printf("\t\t");
+                printf("è·¯å¾„é•¿åº¦ä¸ºï¼š%d\n", A[i][j]);
+            }
+        }
+    }
 }
 
-//FloydËã·¨
+//Floydç®—æ³•
 void Floyd(MatGraph MG) {
-	int i, j, k;
-	int A[MAXV][MAXV];
-	int path[MAXV][MAXV];
-	for (i = 0; i < MG.n; i++) {
-		for (j = 0; j < MG.n; j++) {
-			A[i][j] = MG.adjMat[i][j];
-			if (i != j && MG.adjMat[i][j] < INF) {
-				path[i][j] = i;							//¶¥µã i µ½¶¥µã j ÓĞ±ßÊ±
-			}
-			else {
-				path[i][j] = -1;						//¶¥µã i µ½¶¥µã j ÎŞ±ßÊ±
-			}
-		}
-	}
-	for (k = 0; k < MG.n; k++) {						//Ò»´Î¿¼²ìËùÓĞ¶¥µã
-		for (i = 0; i < MG.n; i++) {
-			for (j = 0; j < MG.n; j++) {
-				if (A[i][j] > A[i][k] + A[k][j]) {
-					A[i][j] = A[i][k] + A[k][j];		//ĞŞ¸Ä×î¶ÌÂ·¾¶³¤¶È
-					path[i][j] = path[k][j];			//ĞŞ¸Ä×î¶ÌÂ·¾¶
-				}
-			}
-		}
-	}
-	displayPath(MG, A, path);							//Êä³ö×î¶ÌÂ·¾¶
+    int i, j, k;
+    int A[MAXV][MAXV];
+    int path[MAXV][MAXV];
+    for (i = 0; i < MG.n; i++) {
+        for (j = 0; j < MG.n; j++) {
+            A[i][j] = MG.adjMat[i][j];
+            if (i != j && MG.adjMat[i][j] < INF) {
+                path[i][j] = i; //é¡¶ç‚¹ i åˆ°é¡¶ç‚¹ j æœ‰è¾¹æ—¶
+            } else {
+                path[i][j] = -1; //é¡¶ç‚¹ i åˆ°é¡¶ç‚¹ j æ— è¾¹æ—¶
+            }
+        }
+    }
+    for (k = 0; k < MG.n; k++) { //ä¸€æ¬¡è€ƒå¯Ÿæ‰€æœ‰é¡¶ç‚¹
+        for (i = 0; i < MG.n; i++) {
+            for (j = 0; j < MG.n; j++) {
+                if (A[i][j] > A[i][k] + A[k][j]) {
+                    A[i][j]    = A[i][k] + A[k][j]; //ä¿®æ”¹æœ€çŸ­è·¯å¾„é•¿åº¦
+                    path[i][j] = path[k][j];        //ä¿®æ”¹æœ€çŸ­è·¯å¾„
+                }
+            }
+        }
+    }
+    displayPath(MG, A, path); //è¾“å‡ºæœ€çŸ­è·¯å¾„
 }
 
 int main() {
-	ListGraph* LG;
-	MatGraph MG;
+    ListGraph* LG;
+    MatGraph   MG;
 
-	int array[MAXV][MAXV] = {
-		{  0,  4,  6,  6,INF,INF,INF},
-		{INF,  0,  1,INF,  7,INF,INF},
-		{INF,INF,  0,INF,  6,  4,INF},
-		{INF,INF,  2,  0,INF,  5,INF},
-		{INF,INF,INF,INF,  0,INF,  6},
-		{INF,INF,INF,INF,  1,  0,  8},
-		{INF,INF,INF,INF,INF,INF,  0}
-	};
+    int array[MAXV][MAXV] = {
+        {0, 4, 6, 6, INF, INF, INF},
+        {INF, 0, 1, INF, 7, INF, INF},
+        {INF, INF, 0, INF, 6, 4, INF},
+        {INF, INF, 2, 0, INF, 5, INF},
+        {INF, INF, INF, INF, 0, INF, 6},
+        {INF, INF, INF, INF, 1, 0, 8},
+        {INF, INF, INF, INF, INF, INF, 0}};
 
-	int e = 12;
-	createAdjListGraph(LG, array, MAXV, e);
-	displayAdjList(LG);
-	printf("\n");
+    int e = 12;
+    createAdjListGraph(LG, array, MAXV, e);
+    displayAdjList(LG);
+    printf("\n");
 
-	ListToMat(LG, MG);
-	displayAdjMat(MG);
-	printf("\n");
+    ListToMat(LG, MG);
+    displayAdjMat(MG);
+    printf("\n");
 
-	Floyd(MG);
-	printf("\n");
+    Floyd(MG);
+    printf("\n");
 
-	return 0;
+    return 0;
 }

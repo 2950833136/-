@@ -1,30 +1,30 @@
 #include <stdio.h>
 
 void ShellSort(int array[],int size){
-	//³õÊ¼»¯ÁÙÊ±Öµ£¬ÔöÁ¿
+	//åˆå§‹åŒ–ä¸´æ—¶å€¼ï¼Œå¢é‡
 	int key=0;
 	int increment=size;
 	do { 
-		//Ã¿´Î¼õĞ¡ÔöÁ¿£¬Ö±µ½increment = 1 
+		//æ¯æ¬¡å‡å°å¢é‡ï¼Œç›´åˆ°increment = 1 
 		increment = increment / 2; 
 		printf("%d\n",increment);
 		for (int i=0;i<increment;i++) { 
-			//¶ÔÃ¿¸ö»®·Ö½øĞĞÖ±½Ó²åÈëÅÅĞò 
+			//å¯¹æ¯ä¸ªåˆ’åˆ†è¿›è¡Œç›´æ¥æ’å…¥æ’åº 
 			for(int j=i+increment;j<size;j=j+increment){
 				if (array[j] < array[j-increment]){ 
 					key = array[j];
 					int k=j-increment;
 					do { 
-						//ÒÆ¶¯ÔªËØ²¢Ñ°ÕÒÎ»ÖÃ 
+						//ç§»åŠ¨å…ƒç´ å¹¶å¯»æ‰¾ä½ç½® 
 						array[k+increment] = array[k]; 
 						k=k-increment;
 					} while (key < array[k] && k>=0);
-					//²åÈëÔªËØ 
+					//æ’å…¥å…ƒç´  
 					array[k+increment] = key;
 				}
 			}
 			
-			//´òÓ¡Ã¿´Î½á¹û 
+			//æ‰“å°æ¯æ¬¡ç»“æœ 
 			for(int i=0;i<size;i++){
 				printf("%d ",array[i]);
 			} 
@@ -37,7 +37,7 @@ int main(){
 	int array[]={49,38,65,97,76,13,27,49,10};
 	int size= sizeof(array) / sizeof(int);
 	printf("%d \n",size);
-	//´òÓ¡Ô­Ê¼Êı¾İ 
+	//æ‰“å°åŸå§‹æ•°æ® 
 	for(int i=0;i<size;i++){
 		printf("%d ",array[i]);
 	}
