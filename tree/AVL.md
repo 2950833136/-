@@ -1,12 +1,13 @@
 这个网上有很多讲解，我就大概记录下自己个人的理解。
 
 ## 一、平衡二叉树
-**1、定义**
+### 1、定义
 平衡二叉树（Balanced Binary Tree）又被称为AVL树（有别于AVL算法）。且具有以下
+
 1. 可以是空树
 2. 假如不是空树，任何一个结点的左子树与右子树都是平衡二叉树，并且高度之差的绝对值不超过 1
 
-**2、为什么要平衡二叉树**
+### 2、为什么要平衡二叉树
 （1）优点
 这个方案很好的解决了二叉查找树退化成链表的问题，**把插入，查找，删除的时间复杂度最好情况和最坏情况都维持在O(logN)**。
 （2）缺点
@@ -15,7 +16,7 @@
 ## 二、算法思想
 **（个人理解，错了请指出）**
 
-**1、平衡算法**
+### 1、平衡算法
 简单的来说，平衡二叉树的性质决定了算法思想：<font color=red>**任何一个结点的左子树与右子树都是平衡二叉树，并且高度之差的绝对值不超过 1**</font>。
 
 **根节点不平衡，下面子树（的最高树）与根节点不平衡方向一致**
@@ -33,34 +34,55 @@
 
 **疑惑**
 前两个都能理解这么旋转，只能这么旋转。
-后两个可能很多人想为什么这么旋转，为什么不直接都移下来（我也很疑惑，大概猜测）
+后两个可能很多人想为什么这么旋转，为什么不直接都移下来
+
 1. 已经有了左旋和右旋，直接可以用（改变数据较少）
 2. 直接移下来改变的数据太多，**不通用**（当最上面是根节点和不是根节点要改变的数据不一样）
 
 （PS：左细线代表 L，右细线代表 R）
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20200422154357133.png)
-**2、插入节点**
-仅仅实现排序插入，新生成树调用平衡算法实现平衡。
+![在这里插入图片描述](./../picture/AVL平衡情况.png)
 
-**3、删除节点**
-（1）删除根节点
-默认将右子树移到左子树最右边节点下。
+### 2、插入节点
+每插入一个节点调用平衡算法实现**从底向上平衡整棵树**。
 
-（2）删除的节点只有左子树
-左子树直接移到该叶子节点。
+1. 根据键值递归找到新节点插入位置
+2. 新建节点连接到该位置
+3. 连接父节点到上面一个节点
+4. 然后从该节点依次实现平衡，根据父节点向上遍历（因为只有该条路径高度产生变化），更新高度
 
-（3）删除的节点只有右子树
-右子树直接移到该叶子节点。
+### 3、删除节点
+删除节点调用平衡算法实现平衡删除节点。
 
-（4）删除叶子节点
-直接置为空 NULL。
+1. 根据键值递归找到删除节点位置
 
-（5）删除的节点既有左子树又有右子树
-默认将左子树上移到该叶子节点，右子树移到左子树最右边节点下。
+2. 当左右节点都存在时
 
-**不论哪种情况，都要更新高度，连接情况（父节点，左子节点，右子节点）。**
+   > 判断左子树不比右子树高度
+   >
+   > （1）如果左子树高
+   >
+   > - 找出 root 的左子树中的最大节点
+   > - 将该最大节点的值赋值给 root
+   > - 删除该最大节点
+   >
+   > （2）如果右子树高
+   >
+   > - 找出tree的右子树中的最小节点
+   >
+   > - 将该最小节点的值赋值给tree
+   > - 删除该最小节点
+
+
+3. 当左右节点不都存在时
+
+   > 直接用存在的子节点覆盖
+
+
 
 ## 三、原理解释
+
+### 1、平衡实现
+
 ```cpp
 /*****************************************************************************
 1. LL型（753）：单右旋
@@ -74,7 +96,7 @@
    2   4                2   4  6   8
 2. LR型（846）：先左旋后右旋
 （89）不变，先以（6）为轴，将（4）左旋，然后把（6）拼接到（8）下面；再以（6）为轴，将（8）右旋
-ps：因为旋转指针指向没变，导致指向有问题，需要重新拼接。
+ps：因为旋转指针指向没变，导致指向有问题，需要重新连接。
 		 8                    8
 		/ \                  / \
 	   4   9                6   9                    6
@@ -93,7 +115,7 @@ ps：因为旋转指针指向没变，导致指向有问题，需要重新拼接
 	   6   9           2   4  6   9
 4. RL型（486）：先右旋后左旋
 （34）不变，先以（6）为轴，将（8）右旋，然后把（6）拼接到（4）下面；再以（6）为轴，将（4）左旋
-ps：因为旋转指针指向没变，导致指向有问题，需要重新拼接。
+ps：因为旋转指针指向没变，导致指向有问题，需要重新连接。
 		 4                   4
 		/ \                 / \
 	   3   8               3   6                       6
@@ -104,12 +126,18 @@ ps：因为旋转指针指向没变，导致指向有问题，需要重新拼接
 *****************************************************************************/
 ```
 
+
+
 ## 四、代码实现
-看他人源代码时，主要有个疑惑，因为要进行旋转，如果不是根节点，已有的联系会断开，他们是如何把存在的联系再接上的，最后想不通，自己实现的时候，本人额外添加了一个父结点指针。
 
+网上主要有两种代码实现
 
+1. **左右节点指针**：[平衡二叉树（AVL树）](https://www.cnblogs.com/sench/p/7786718.html)
+2. **包含父节点指针**：
 
-**先看一下结构体，如果认为不该这么建，后面的就不用看了。**
+### 1、结构体
+
+本代码使用父节点实现
 
 ```cpp
 typedef struct _Adelson_Velsky_Landis_Node {    // 树结构体节点
@@ -122,7 +150,7 @@ typedef struct _Adelson_Velsky_Landis_Node {    // 树结构体节点
 } AVLNode;
 ```
 
-**全部代码**
+### 2、全部代码
 
 ```cpp
 #define _CRT_SECURE_NO_WARNINGS // VS 忽略安全警告
@@ -161,7 +189,6 @@ void     delete_tree(AVLNode* root);                // 删除树
 int      get_balance(AVLNode* root);  // 得到平衡因子
 AVLNode* rotate_left(AVLNode* root);  // 左旋
 AVLNode* rotate_right(AVLNode* root); // 右旋
-AVLNode* balance(AVLNode* root);      // 递归平衡整棵树
 AVLNode* balance_node(AVLNode* root); // 判断节点该怎么平衡调整
 
 /*
@@ -175,21 +202,45 @@ int main() {
     /*
     *	大数据测试
     */
-    int nums[]   = {6, 5, 2, 7, 3, 1, 8, 4, 5};
+    int nums[]   = {6, 8, 2, 3, 5, 4, 7, 1, 9, 6};
     int numsSize = sizeof(nums) / sizeof(nums[0]);
+    // 添加
     for (int i = 0; i < numsSize; i++) {
         root = insert(root, nums[i], nums[i] + 10);
-        printf("完成平衡后的树:\n");
+        printf("insert %d tree:\n", nums[i]);
         draw(root);
     }
 
-    for (int i = 0; i < 5; i++) {
-        root = delete_node(root, nums[i]);
-        printf("完成平衡后的树:\n");
-        draw(root);
-    }
+    // 删除
+    // for (int i = 0; i < numsSize; i++) {
+    //     root = delete_node(root, nums[i]);
+    //     printf("delete %d tree:\n", nums[i]);
+    //     draw(root);
+    // }
 
     return 0;
+}
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+int height(AVLNode* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    return root->height;
+}
+
+// 更新节点高度
+int height_update(AVLNode* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    int height_left  = height(root->left) + 1;
+    int height_right = height(root->right) + 1;
+    root->height     = max(height_left, height_right);
+    return root->height;
 }
 
 /*****************************************************************************
@@ -220,7 +271,7 @@ AVLNode* new_node(int key, int value) {
 *	key		: 键值
 *	value	: 信息
 * @output:
-*   root    : 树根节点 
+*   node    : 树根节点
 *****************************************************************************/
 AVLNode* insert(AVLNode* node, int key, int value) {
     if (node == NULL) {
@@ -229,46 +280,13 @@ AVLNode* insert(AVLNode* node, int key, int value) {
     }
 
     if (key < node->key) {
-        if (node->left != NULL) {
-            return insert(node->left, key, value);
-        } else {
-            AVLNode* temp      = node;
-            temp->left         = insert(node->left, key, value);
-            temp->left->parent = temp;
-            return balance(temp->left);
-        }
+        node->left = insert(node->left, key, value);
     } else {
-        if (node->right != NULL) {
-            return insert(node->right, key, value);
-        } else {
-            AVLNode* temp       = node;
-            temp->right         = insert(node->right, key, value);
-            temp->right->parent = temp;
-            return balance(temp->right);
-        }
+        node->right = insert(node->right, key, value);
     }
-}
-
-int max(int a, int b) {
-    return (a > b) ? a : b;
-}
-
-int height(AVLNode* root) {
-    if (root == NULL) {
-        return 0;
-    }
-    return root->height;
-}
-
-// 更新节点高度
-int height_update(AVLNode* root) {
-    if (root == NULL) {
-        return 0;
-    }
-    int height_left  = height(root->left) + 1;
-    int height_right = height(root->right) + 1;
-    root->height     = max(height_left, height_right);
-    return root->height;
+    node = balance_node(node);
+    height_update(node);
+    return node;
 }
 
 // 得到平衡因子
@@ -277,19 +295,6 @@ int get_balance(AVLNode* root) {
         return 0;
     }
     return height_update(root->left) - height_update(root->right);
-}
-
-// 递归平衡树，从下往上一直平衡到根节点
-AVLNode* balance(AVLNode* root) {
-    AVLNode* node = root;
-    int      sub  = get_balance(node);
-    if (sub < -1 || sub > 1) {
-        node = balance_node(node);
-    }
-    if (node->parent != NULL) {
-        node = balance(node->parent);
-    }
-    return node;
 }
 
 /*****************************************************************************
@@ -527,18 +532,35 @@ void delete_tree(AVLNode* root) {
 
 ## 五、结果
 
+![](./../picture/AVL_debug.png)
+
 
 
 ## 六、总结
-**1、参考**
- 1. 五分钟学算法 （博客园）：`https://www.cnblogs.com/fivestudy/p/10340647.html`
- 2.  float123（博客园）： `https://www.cnblogs.com/Benjious/p/10336145.html`
+### 1、优缺点
 
-**2、个人疑惑**
-虽然定义是高度差顶多为 1，但是也可能出现极端情况。高度差为 1，但是子节点差在（0~5）个
-这就导致细微的差别，虽然每个人简得平衡树满足条件，但是可能不一样。
+**（1）包含父节点**
 
-**个人最后觉得以节点个数作为平衡因子效果更好**
+1. 容易理解
+2. 但是需要修改维护的节点很多，容易出错
 
-**3、动态平衡树构建——网页版**
+**（2）不包含父节点**
+
+1. 维护节点少，不容易出错
+2. 提取共有函数较少，需要在函数中更新连接节点
+
+### 2、平衡树构建
+动态平衡树构建——网页版
+
 网址：`https://www.cs.usfca.edu/~galles/visualization/AVLtree.html`
+
+
+
+## 参考资料
+
+(1) [平衡二叉树（AVL树）](https://www.cnblogs.com/sench/p/7786718.html): https://www.cnblogs.com/sench/p/7786718.html
+
+(2) [什么是平衡二叉树（AVL）](https://www.cnblogs.com/fivestudy/p/10340647.html): https://www.cnblogs.com/fivestudy/p/10340647.html
+
+(3) [数据结构（一）-- 平衡树](https://www.cnblogs.com/Benjious/p/10336145.html): https://www.cnblogs.com/Benjious/p/10336145.html
+

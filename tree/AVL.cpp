@@ -34,7 +34,6 @@ void     delete_tree(AVLNode* root);                // 删除树
 int      get_balance(AVLNode* root);  // 得到平衡因子
 AVLNode* rotate_left(AVLNode* root);  // 左旋
 AVLNode* rotate_right(AVLNode* root); // 右旋
-AVLNode* balance(AVLNode* root);      // 递归平衡整棵树
 AVLNode* balance_node(AVLNode* root); // 判断节点该怎么平衡调整
 
 /*
@@ -48,21 +47,45 @@ int main() {
     /*
     *	大数据测试
     */
-    int nums[]   = {6, 5, 2, 7, 3, 1, 8, 4, 5};
+    int nums[]   = {6, 8, 2, 3, 5, 4, 7, 1, 9, 6};
     int numsSize = sizeof(nums) / sizeof(nums[0]);
+    // 添加
     for (int i = 0; i < numsSize; i++) {
         root = insert(root, nums[i], nums[i] + 10);
-        printf("完成平衡后的树:\n");
+        printf("insert %d tree:\n", nums[i]);
         draw(root);
     }
 
-    for (int i = 0; i < numsSize; i++) {
-        root = delete_node(root, nums[i]);
-        printf("完成平衡后的树:\n");
-        draw(root);
-    }
+    // 删除
+    // for (int i = 0; i < numsSize; i++) {
+    //     root = delete_node(root, nums[i]);
+    //     printf("delete %d tree:\n", nums[i]);
+    //     draw(root);
+    // }
 
     return 0;
+}
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+int height(AVLNode* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    return root->height;
+}
+
+// 更新节点高度
+int height_update(AVLNode* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    int height_left  = height(root->left) + 1;
+    int height_right = height(root->right) + 1;
+    root->height     = max(height_left, height_right);
+    return root->height;
 }
 
 /*****************************************************************************
@@ -93,7 +116,7 @@ AVLNode* new_node(int key, int value) {
 *	key		: 键值
 *	value	: 信息
 * @output:
-*   root    : 树根节点 
+*   node    : 树根节点
 *****************************************************************************/
 AVLNode* insert(AVLNode* node, int key, int value) {
     if (node == NULL) {
@@ -102,46 +125,13 @@ AVLNode* insert(AVLNode* node, int key, int value) {
     }
 
     if (key < node->key) {
-        if (node->left != NULL) {
-            return insert(node->left, key, value);
-        } else {
-            AVLNode* temp      = node;
-            temp->left         = insert(node->left, key, value);
-            temp->left->parent = temp;
-            return balance(temp->left);
-        }
+        node->left = insert(node->left, key, value);
     } else {
-        if (node->right != NULL) {
-            return insert(node->right, key, value);
-        } else {
-            AVLNode* temp       = node;
-            temp->right         = insert(node->right, key, value);
-            temp->right->parent = temp;
-            return balance(temp->right);
-        }
+        node->right = insert(node->right, key, value);
     }
-}
-
-int max(int a, int b) {
-    return (a > b) ? a : b;
-}
-
-int height(AVLNode* root) {
-    if (root == NULL) {
-        return 0;
-    }
-    return root->height;
-}
-
-// 更新节点高度
-int height_update(AVLNode* root) {
-    if (root == NULL) {
-        return 0;
-    }
-    int height_left  = height(root->left) + 1;
-    int height_right = height(root->right) + 1;
-    root->height     = max(height_left, height_right);
-    return root->height;
+    node = balance_node(node);
+    height_update(node);
+    return node;
 }
 
 // 得到平衡因子
@@ -150,19 +140,6 @@ int get_balance(AVLNode* root) {
         return 0;
     }
     return height_update(root->left) - height_update(root->right);
-}
-
-// 递归平衡树，从下往上一直平衡到根节点
-AVLNode* balance(AVLNode* root) {
-    AVLNode* node = root;
-    int      sub  = get_balance(node);
-    if (sub < -1 || sub > 1) {
-        node = balance_node(node);
-    }
-    if (node->parent != NULL) {
-        node = balance(node->parent);
-    }
-    return node;
 }
 
 /*****************************************************************************
