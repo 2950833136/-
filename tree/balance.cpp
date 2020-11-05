@@ -4,14 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SPACE		6
-#define STR_SIZE	1024
+#define STR_SIZE 1024
 
-typedef struct tree_node {		//树结构体节点
-	int data;					//信息
-	struct tree_node* left;		//左节点
-	struct tree_node* right;	//右节点
-}TNode;
+typedef struct tree_node {   //树结构体节点
+    int               data;  //信息
+    struct tree_node* left;  //左节点
+    struct tree_node* right; //右节点
+} TNode;
 
 static TNode* tree = NULL;
 
@@ -26,27 +25,26 @@ static TNode* tree = NULL;
 *	0	: 成功
 *****************************************************************************/
 int insert(TNode** root, int data) {
-	TNode* node;
+    TNode* node;
 
-	if ((*root) == NULL) {
-		node = (TNode*)malloc(sizeof(TNode));
-		if (node == NULL) {
-			return -1;
-		}
-		node->data = data;
-		node->left = NULL;
-		node->right = NULL;
+    if ((*root) == NULL) {
+        node = (TNode*)malloc(sizeof(TNode));
+        if (node == NULL) {
+            return -1;
+        }
+        node->data  = data;
+        node->left  = NULL;
+        node->right = NULL;
 
-		(*root) = node;
-		return 0;
-	}
+        (*root) = node;
+        return 0;
+    }
 
-	if (data <= (*root)->data) {
-		return insert(&(*root)->left, data);
-	}
-	else {
-		return insert(&(*root)->right, data);
-	}
+    if (data <= (*root)->data) {
+        return insert(&(*root)->left, data);
+    } else {
+        return insert(&(*root)->right, data);
+    }
 }
 
 /*****************************************************************************
@@ -60,20 +58,20 @@ int insert(TNode** root, int data) {
 *   none: none
 *****************************************************************************/
 void draw_level(TNode* root, bool left, char* str) {
-	if (root->right) {
-		draw_level(root->right, false, strcat(str, (left ? "|     " : "      ")));
-	}
+    if (root->right) {
+        draw_level(root->right, false, strcat(str, (left ? "|     " : "      ")));
+    }
 
-	printf("%s", str);
-	printf("%c", (left ? '\\' : '/'));
-	printf("-----");
-	printf("%d\n", root->data);
+    printf("%s", str);
+    printf("%c", (left ? '\\' : '/'));
+    printf("-----");
+    printf("%d\n", root->data);
 
-	if (root->left) {
-		draw_level(root->left, true, strcat(str, (left ? "      " : "|     ")));
-	}
+    if (root->left) {
+        draw_level(root->left, true, strcat(str, (left ? "      " : "|     ")));
+    }
 
-	str[strlen(str) - SPACE] = '\0';
+    str[strlen(str) - 6] = '\0';
 }
 
 /*****************************************************************************
@@ -85,18 +83,18 @@ void draw_level(TNode* root, bool left, char* str) {
 *   none : none
 *****************************************************************************/
 void draw(TNode* root) {
-	char str[STR_SIZE];
-	memset(str, '\0', STR_SIZE);
+    char str[STR_SIZE];
+    memset(str, '\0', STR_SIZE);
 
-	if (root->right) {
-		draw_level(root->right, false, str);
-	}
-	printf("%d\n", root->data);
-	if (root->left) {
-		draw_level(root->left, true, str);
-	}
+    if (root->right) {
+        draw_level(root->right, false, str);
+    }
+    printf("%d\n", root->data);
+    if (root->left) {
+        draw_level(root->left, true, str);
+    }
 
-	printf("\n\n");
+    printf("\n\n");
 }
 
 /*****************************************************************************
@@ -108,10 +106,10 @@ void draw(TNode* root) {
 *   num	: 子节点数
 *****************************************************************************/
 static int get_num(TNode* root) {
-	if (root == NULL) {
-		return 0;
-	}
-	return get_num(root->left) + 1 + get_num(root->right);
+    if (root == NULL) {
+        return 0;
+    }
+    return get_num(root->left) + 1 + get_num(root->right);
 }
 
 /*****************************************************************************
@@ -123,10 +121,10 @@ static int get_num(TNode* root) {
 *   TNode	: 右子节点为空的节点
 *****************************************************************************/
 static TNode* find_min(TNode* root) {
-	if (root->left == NULL) {
-		return root;
-	}
-	return find_min(root->left);
+    if (root->left == NULL) {
+        return root;
+    }
+    return find_min(root->left);
 }
 
 /*****************************************************************************
@@ -138,13 +136,13 @@ static TNode* find_min(TNode* root) {
 *   none: none
 *****************************************************************************/
 static void turn_left(TNode** root) {
-	TNode* cur = *root;
-	*root = cur->right;
-	cur->right = NULL;
-	find_min(*root)->left = cur;
+    TNode* cur            = *root;
+    *root                 = cur->right;
+    cur->right            = NULL;
+    find_min(*root)->left = cur;
 
-	draw(tree);
-	//getchar();
+    draw(tree);
+    //getchar();
 }
 
 /*****************************************************************************
@@ -156,10 +154,10 @@ static void turn_left(TNode** root) {
 *   TNode	: 右子节点为空的节点
 *****************************************************************************/
 static TNode* find_max(TNode* root) {
-	if (root->right == NULL) {
-		return root;
-	}
-	return find_max(root->right);
+    if (root->right == NULL) {
+        return root;
+    }
+    return find_max(root->right);
 }
 
 /*****************************************************************************
@@ -171,13 +169,13 @@ static TNode* find_max(TNode* root) {
 *   none: none
 *****************************************************************************/
 static void turn_right(TNode** root) {
-	TNode* cur = *root;
-	*root = cur->left;
-	cur->left = NULL;
-	find_max(*root)->right = cur;
+    TNode* cur             = *root;
+    *root                  = cur->left;
+    cur->left              = NULL;
+    find_max(*root)->right = cur;
 
-	draw(tree);
-	//getchar();
+    draw(tree);
+    //getchar();
 }
 
 /*****************************************************************************
@@ -189,49 +187,48 @@ static void turn_right(TNode** root) {
 *   none: none
 *****************************************************************************/
 void balance(TNode** root) {
-	if (*root == NULL) {
-		return;
-	}
+    if (*root == NULL) {
+        return;
+    }
 
-	while (1) {
-		int sub = get_num((*root)->left) - get_num((*root)->right);
-		if (sub >= -1 && sub <= 1) {
-			break;
-		}
-		if (sub < -1) {
-			turn_left(root);
-		}
-		else {
-			turn_right(root);
-		}
-	}
-	balance(&(*root)->left);
-	balance(&(*root)->right);
+    while (1) {
+        int sub = get_num((*root)->left) - get_num((*root)->right);
+        if (sub >= -1 && sub <= 1) {
+            break;
+        }
+        if (sub < -1) {
+            turn_left(root);
+        } else {
+            turn_right(root);
+        }
+    }
+    balance(&(*root)->left);
+    balance(&(*root)->right);
 }
 
 //中序遍历
 void inOrder(TNode* root) {
-	if (root != NULL) {
-		inOrder(root->left);
-		printf("%d ", root->data);
-		inOrder(root->right);
-	}
+    if (root != NULL) {
+        inOrder(root->left);
+        printf("%d ", root->data);
+        inOrder(root->right);
+    }
 }
 
 int main() {
-	int array[] = { 6,5,7,2,3,8,4,1,2,9,10,0,15,13 };
-	//int array[] = { 1,2,3,4,5,6,7,8,9 };
-	//int array[] = { 1,2,3,4,5,6,7,8,9,10,11,12 };
+    int array[] = {6, 5, 7, 2, 3, 8, 4, 1, 2, 9, 10, 0, 15, 13};
+    //int array[] = { 1,2,3,4,5,6,7,8,9 };
+    //int array[] = { 1,2,3,4,5,6,7,8,9,10,11,12 };
 
-	//循环创建树
-	for (int i = 0; i < sizeof(array) / sizeof(*array); i++) {
-		insert(&tree, array[i]);
-	}
+    //循环创建树
+    for (int i = 0; i < sizeof(array) / sizeof(*array); i++) {
+        insert(&tree, array[i]);
+    }
 
-	draw(tree);
-	balance(&tree);
-	draw(tree);
-	inOrder(tree);
+    draw(tree);
+    balance(&tree);
+    draw(tree);
+    inOrder(tree);
 
-	return 0;
+    return 0;
 }
