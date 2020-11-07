@@ -2,438 +2,397 @@
 
 由于红黑树本质上就是一棵二叉查找树，所以在了解红黑树之前，咱们先来看下二叉查找树。
 
-## 1 二叉查找树
+## 1. 二叉查找树
 
 二叉查找树（Binary Search Tree），是指一棵空树或者具有下列性质的二叉树：
 
-**（1）若任意节点的左子树不空，则左子树上所有节点的值均小于它的根节点的值**
-
-**（2）若任意节点的右子树不空，则右子树上所有节点的值均大于它的根节点的值**
-
-**（3）任意节点的左、右子树也分别为二叉查找树**
-
-**（4）没有键值相等的节点（no duplicate nodes）**
+1. 若任意节点的左子树不空，则左子树上所有节点的值均小于它的根节点的值
+2. 若任意节点的右子树不空，则右子树上所有节点的值均大于它的根节点的值
+3. 任意节点的左、右子树也分别为二叉查找树
+4. 没有键值相等的节点（no duplicate nodes）
 
 
 
-## 2 红黑树
+## 2. 红黑树
 
 R-B Tree，全称是Red-Black Tree，又称为“红黑树”，它一种特殊的二叉查找树。红黑树的每个节点上都有存储位表示节点的颜色，可以是红(Red)或黑(Black)。
 
+<font color=red>**根节点必黑，只能黑连黑，不能红连红； 新增默认是红色，父叔通红就变色，父红叔黑就旋转，哪边黑往哪边转。**</font>
+
 **红黑树的特性**
-**（1）每个节点要么是红的，要么是黑的**
 
-**（2）根节点是黑色**
-**（3）每个叶子节点是黑色**  <font color="red">[注意：这里叶子节点指树尾端NIL指针或NULL节点]</font>
-**（4）如果一个节点是红色的，则它的子节点必须是黑色的**
-**（5）对于任一节点而言，其到叶子节点树尾端NIL指针的每一条路径都包含相同数目的黑节点**
+1. 每个节点要么是红的，要么是黑的
+2. 根节点是黑色
+3. 每个叶子节点是黑色
+4. 如果一个节点是红色的，则它的子节点必须是黑色的
+5. 从任一节点到其每个叶子的所有简单路径都包含相同数目的黑色节点
 
-**注意**：
+**注意**
 
-1. 特性(3)中的叶子节点，是只为空(NIL或null)的节点。
-2. 特性(5)确保没有一条路径会比其他路径长出俩倍。因而，红黑树是相对是接近平衡的二叉树。
-3. 上文中所说的 "叶子节点" 或"NULL节点"，它不包含数据而只充当树在此结束的指示，这些节点以及它们的父节点，在绘图中都会经常被省略。
++ 特性(3)中的叶子节点，是指为空(NIL或null)的节点。
++ 特性(4)从每个叶子到根的所有路径上不能有两个连续的红色节点
+
+
+
+![](./../picture/RBT.png)
 
  
 
-https://www.cnblogs.com/skywang12345/p/3245399.html
+## 3.  操作
+
+&emsp;因为每一个红黑树也是一个特化的二叉查找树，因此红黑树上的只读操作与普通二叉查找树上的只读操作相同。
+
+&emsp;在红黑树上进行**插入操作**和**删除操作**会导致不再符合红黑树的性质。恢复红黑树的性质需要少量 ${\displaystyle {\text{O}}(\log n)}$ 的颜色变更（实际是非常快速的）和不超过三次树旋转（对于插入操作是两次）。虽然插入和删除很复杂，但操作时间仍可以保持为 ${\displaystyle {\text{O}}(\log n)}$ 次。
 
 
 
-### 树的旋转知识
+### 3.0 基础操作
 
-当我们在对红黑树进行插入和删除等操作时，对树做了修改，那么可能会违背红黑树的性质。  
+#### （1）结构体
 
-为了继续保持红黑树的性质，我们可以通过对节点进行重新着色，以及对树进行相关的旋转操作，即修改树中某些节点的颜色及指针结构，来达到对红黑树进行插入或删除节点等操作后，继续保持它的性质或平衡。  
+```c
+enum color_t {
+    BLACK,
+    RED
+};
 
-树的旋转，分为左旋和右旋，以下借助图来做形象的解释和介绍：  
-
-1.左旋  
-
-![](../images/rbtree/2.jpg)
-
-如上图所示：  
-
-当在某个节点pivot上，做左旋操作时，我们假设它的右孩子y不是NIL[T]，pivot可以为任何不是NIL[T]的左孩子节点。
-
-左旋以pivot到y之间的链为“支轴”进行，它使y成为该孩子树新的根，而y的左孩子b则成为pivot的右孩子。  
-
-左旋操作的参考代码如下所示（以x代替上述的pivot）：  
-
-```
- LEFT-ROTATE(T, x)  
-1  y ← right[x] ▹ Set y.  
-2  right[x] ← left[y]      ▹ Turn y's left subtree into x's right subtree.  
-3  p[left[y]] ← x  
-4  p[y] ← p[x]             ▹ Link x's parent to y.  
-5  if p[x] = nil[T]  
-6     then root[T] ← y  
-7     else if x = left[p[x]]  
-8             then left[p[x]] ← y  
-9             else right[p[x]] ← y  
-10  left[y] ← x             ▹ Put x on y's left.  
-11  p[x] ← y  
+typedef struct _Red_Black_Tree_Node {
+    int                          key;
+    enum color_t                 color;
+    struct _Red_Black_Tree_Node* parent;
+    struct _Red_Black_Tree_Node* left;
+    struct _Red_Black_Tree_Node* right;
+} RBTNode;
 ```
 
-2.右旋  
+#### （2）获取各种节点
 
-右旋与左旋差不多，再此不做详细介绍。  
+```c
+RBTNode* GetParent(RBTNode* n) {
+    // Note that parent is set to null for the root .
+    return n == NULL ? NULL : n->parent;
+}
 
-![](../images/rbtree/3.jpg)
+RBTNode* GetGrandParent(RBTNode* n) {
+    // Note that it will return NULL if this is root or child of root
+    return GetParent(GetParent(n));
+}
 
-对于树的旋转，能保持不变的只有原树的搜索性质，而原树的红黑性质则不能保持，在红黑树的数据插入和删除后可利用旋转和颜色重涂来恢复树的红黑性质。  
+RBTNode* GetSibling(RBTNode* n) {
+    RBTNode* p = GetParent(n);
 
-### 红黑树的插入
+    // No parent means no sibling.
+    if (p == NULL) {
+        return NULL;
+    }
 
-要真正理解红黑树的插入和删除，还得先理解二叉查找树的插入和删除。磨刀不误砍柴工，咱们再来分别了解下二叉查找树的插入和删除。
+    if (n == p->left) {
+        return p->right;
+    } else {
+        return p->left;
+    }
+}
 
-#### 二叉查找树的插入
+RBTNode* GetUncle(RBTNode* n) {
+    RBTNode* p = GetParent(n);
 
-如果要在二叉查找树中插入一个节点，首先要查找到节点插入的位置，然后进行插入，假设插入的节点为z的话，插入的伪代码如下：
-
-```
-TREE-INSERT(T, z)
- 1  y ← NIL
- 2  x ← root[T]
- 3  while x ≠ NIL
- 4      do y ←  x
- 5         if key[z] < key[x]
- 6            then x ← left[x]
- 7            else x ← right[x]
- 8  p[z] ← y
- 9  if y = NIL
-10     then root[T] ← z              ⊹ Tree T was empty
-11     else if key[z] < key[y]
-12             then left[y] ← z
-13             else right[y] ← z
-```
-
-可以看到，上述第3-7行代码即是在二叉查找树中查找z待插入的位置，如果插入节点z小于当前遍历到的节点，则到当前节点的左子树中继续查找，如果z大于当前节点，则到当前节点的右子树中继续查找，第9-13行代码找到待插入的位置，如果z依然比此刻遍历到的新的当前节点小，则z作为当前节点的左孩子，否则作为当前节点的右孩子。
-
-#### 红黑树的插入和插入修复
-
-现在我们了解了二叉查找树的插入，接下来，咱们便来具体了解红黑树的插入操作。红黑树的插入相当于在二叉查找树插入的基础上，为了重新恢复平衡，继续做了插入修复操作。
-
-假设插入的节点为z，红黑树的插入伪代码具体如下所示：  
-
-```
-RB-INSERT(T, z)  
- 1  y ← nil[T]  
- 2  x ← root[T]  
- 3  while x ≠ nil[T]  
- 4      do y ← x  
- 5         if key[z] < key[x]  
- 6            then x ← left[x]  
- 7            else x ← right[x]  
- 8  p[z] ← y  
- 9  if y = nil[T]  
-10     then root[T] ← z  
-11     else if key[z] < key[y]  
-12             then left[y] ← z  
-13             else right[y] ← z  
-14  left[z] ← nil[T]  
-15  right[z] ← nil[T]  
-16  color[z] ← RED  
-17  RB-INSERT-FIXUP(T, z)  
+    // No parent means no uncle
+    return GetSibling(p);
+}
 ```
 
-我们把上面这段红黑树的插入代码，跟我们之前看到的二叉查找树的插入代码，可以看出，RB-INSERT(T, z)前面的第1-13行代码基本就是二叉查找树的插入代码，然后第14-16行代码把z的左孩子、右孩子都赋为叶节点nil，再把z节点着为红色，最后为保证红黑性质在插入操作后依然保持，调用一个辅助程序RB-INSERT-FIXUP来对节点进行重新着色，并旋转。  
+#### （3）旋转
 
-换言之
- - 如果插入的是根节点，因为原树是空树，此情况只会违反性质2，所以直接把此节点涂为黑色。  
- - 如果插入的节点的父节点是黑色，由于此不会违反性质2和性质4，红黑树没有被破坏，所以此时也是什么也不做。  
+&emsp;红黑树是基于二叉查找树，当我们在对红黑树进行插入和删除等操作时，对树做了修改，那么可能会违背红黑树的性质。为了继续保持红黑树的性质，我们可以通过对结点进行重新着色，以及对树进行相关的旋转操作，即修改树中某些结点的颜色及指针结构，来达到对红黑树进行插入或删除结点等操作后，继续保持它的性质。
 
-但当遇到下述3种情况时：
- - 插入修复情况1：如果当前节点的父节点是红色且祖父节点的另一个子节点（叔叔节点）是红色
- - 插入修复情况2：当前节点的父节点是红色,叔叔节点是黑色，当前节点是其父节点的右子
- - 插入修复情况3：当前节点的父节点是红色,叔叔节点是黑色，当前节点是其父节点的左子
+![动态演示](./../picture/Tree_rotation.gif)
 
-又该如何调整呢？答案就是根据红黑树插入代码RB-INSERT(T, z)最后一行调用的RB-INSERT-FIXUP（T,z）所示操作进行，具体如下所示：  
-```
-RB-INSERT-FIXUP（T,z）
- 1 while color[p[z]] = RED  
- 2     do if p[z] = left[p[p[z]]]  
- 3           then y ← right[p[p[z]]]  
- 4                if color[y] = RED  
- 5                   then color[p[z]] ← BLACK                    ▹ Case 1  
- 6                        color[y] ← BLACK                       ▹ Case 1  
- 7                        color[p[p[z]]] ← RED                   ▹ Case 1  
- 8                        z ← p[p[z]]                            ▹ Case 1  
- 9                   else if z = right[p[z]]  
-10                           then z ← p[z]                       ▹ Case 2  
-11                                LEFT-ROTATE(T, z)              ▹ Case 2  
-12                           color[p[z]] ← BLACK                 ▹ Case 3  
-13                           color[p[p[z]]] ← RED                ▹ Case 3  
-14                           RIGHT-ROTATE(T, p[p[z]])            ▹ Case 3  
-15           else (same as then clause  
-                         with "right" and "left" exchanged)  
-16 color[root[T]] ← BLACK  
-```
+&emsp;旋转操作不会导致叶节点顺序的改变（可以理解为旋转操作前后，树的**中序遍历**结果是一致的），旋转过程中也始终受**二叉搜索树**的主要性质约束：**右子节点比父节点大、左子节点比父节点小**。
 
-下面，咱们来分别处理上述3种插入修复情况。
+&emsp;尤其需要注意的是，进行右旋转时，旋转前根的左节点的右节点（例如上图中以 *B* 为根的 *${\beta}$* 节点）会变成根的左节点，根本身则在旋转后会变成新的根的右节点，而在这一过程中，整棵树一直遵守着前面提到的几个约束。相反的左旋转操作亦然。
 
-**插入修复情况1：当前节点的父节点是红色且祖父节点的另一个子节点（叔叔节点）是红色。**  
+![静态演示](../picture/Tree_Rotations.png)
 
-即如下代码所示：
-```
- 1 while color[p[z]] = RED  
- 2     do if p[z] = left[p[p[z]]]  
- 3           then y ← right[p[p[z]]]  
- 4                if color[y] = RED  
-```
+**注意**：这些都有父节点，旋转后新的根节点连接到原来根节点的父节点。
 
-此时父节点的父节点一定存在，否则插入前就已不是红黑树。  
-与此同时，又分为父节点是祖父节点的左子还是右子，对于对称性，我们只要解开一个方向就可以了。  
 
-在此，我们只考虑父节点为祖父左子的情况。  
-同时，还可以分为当前节点是其父节点的左子还是右子，但是处理方式是一样的。我们将此归为同一类。  
 
-  对策：将当前节点的父节点和叔叔节点涂黑，祖父节点涂红，把当前节点指向祖父节点，从新的当前节点重新开始算法。即如下代码所示：
+**左旋**
 
-```
- 5                   then color[p[z]] ← BLACK                    ▹ Case 1  
- 6                        color[y] ← BLACK                       ▹ Case 1  
- 7                        color[p[p[z]]] ← RED                   ▹ Case 1  
- 8                        z ← p[p[z]]                            ▹ Case 1  
+```C
+void RotateLeft(RBTNode* n) {
+    RBTNode* nnew = n->right;
+    RBTNode* p    = GetParent(n);
+    // Since the leaves of a red-black tree are empty,
+    // they cannot become internal nodes.
+    assert(nnew != NULL);
+
+    n->right   = nnew->left;
+    nnew->left = n;
+    n->parent  = nnew;
+    // Handle other child/parent pointers.
+    if (n->right != NULL) {
+        n->right->parent = n;
+    }
+
+    // Initially n could be the root.
+    if (p != NULL) {
+        if (n == p->left) {
+            p->left = nnew;
+        } else if (n == p->right) {
+            p->right = nnew;
+        }
+    }
+    nnew->parent = p;
+}
 ```
 
-针对情况1，变化前（图片来源：saturnman）[当前节点为4节点]：  
+**右旋**
 
-![](../images/rbtree/4.png)
+```c
+void RotateRight(RBTNode* n) {
+    RBTNode* nnew = n->left;
+    RBTNode* p    = GetParent(n);
+    // Since the leaves of a red-black tree are empty,
+    // they cannot become internal nodes.
+    assert(nnew != NULL);
 
-变化后：  
+    n->left     = nnew->right;
+    nnew->right = n;
+    n->parent   = nnew;
 
-![](../images/rbtree/5.png)
+    // Handle other child/parent pointers.
+    if (n->left != NULL) {
+        n->left->parent = n;
+    }
 
-**插入修复情况2：当前节点的父节点是红色,叔叔节点是黑色，当前节点是其父节点的右子**  
-  对策：当前节点的父节点做为新的当前节点，以新当前节点为支点左旋。即如下代码所示：
-```
- 9                   else if z = right[p[z]]
-10                           then z ← p[z]                       ▹ Case 2
-11                                LEFT-ROTATE(T, z)              ▹ Case 2
-```
-如下图所示，变化前[当前节点为7节点]：  
-
-![](../images/rbtree/6.png)
-
-变化后：
-
-![](../images/rbtree/7.png)
-
-**插入修复情况3：当前节点的父节点是红色,叔叔节点是黑色，当前节点是其父节点的左子**  
-解法：父节点变为黑色，祖父节点变为红色，在祖父节点为支点右旋，操作代码为：
-```
-12                           color[p[z]] ← BLACK                 ▹ Case 3
-13                           color[p[p[z]]] ← RED                ▹ Case 3
-14                           RIGHT-ROTATE(T, p[p[z]])            ▹ Case 3
-```
-
-最后，把根节点涂为黑色，整棵红黑树便重新恢复了平衡。
-
-如下图所示[当前节点为2节点]  
-
-![](../images/rbtree/8.png)
-
-变化后：  
-
-![](../images/rbtree/9.png)
-
-
-
-### 红黑树的删除
-
-ok，接下来，咱们最后来了解，红黑树的删除操作。
-
-"我们删除的节点的方法与常规二叉搜索树中删除节点的方法是一样的，如果被删除的节点不是有双非空子女，则直接删除这个节点，用它的唯一子节点顶替它的位置，如果它的子节点都是空节点，那就用空节点顶替它的位置，如果它的双子全为非空，我们就把它的直接后继节点内容复制到它的位置，之后以同样的方式删除它的后继节点，它的后继节点不可能是双子非空，因此此传递过程最多只进行一次。” 
-
-#### 二叉查找树的删除
-
-继续讲解之前，补充说明下二叉树节点删除的几种情况，待删除的节点按照儿子的个数可以分为三种：  
-
-1. 没有儿子，即为叶节点。直接把父节点的对应儿子指针设为NULL，删除儿子节点就OK了。
-2. 只有一个儿子。那么把父节点的相应儿子指针指向儿子的独生子，删除儿子节点也OK了。
-3. 有两个儿子。这是最麻烦的情况，因为你删除节点之后，还要保证满足搜索二叉树的结构。其实也比较容易，我们可以选择左儿子中的最大元素或者右儿子中的最小元素放到待删除节点的位置，就可以保证结构的不变。当然，你要记得调整子树，毕竟又出现了节点删除。习惯上大家选择左儿子中的最大元素，其实选择右儿子的最小元素也一样，没有任何差别，只是人们习惯从左向右。这里咱们也选择左儿子的最大元素，将它放到待删节点的位置。左儿子的最大元素其实很好找，只要顺着左儿子不断的去搜索右子树就可以了，直到找到一个没有右子树的节点。那就是最大的了。
-
-二叉查找树的删除代码如下所示：
-```
-TREE-DELETE(T, z)
- 1  if left[z] = NIL or right[z] = NIL
- 2      then y ← z
- 3      else y ← TREE-SUCCESSOR(z)
- 4  if left[y] ≠ NIL
- 5      then x ← left[y]
- 6      else x ← right[y]
- 7  if x ≠ NIL
- 8      then p[x] ← p[y]
- 9  if p[y] = NIL
-10      then root[T] ← x
-11      else if y = left[p[y]]
-12              then left[p[y]] ← x
-13              else right[p[y]] ← x
-14  if y ≠ z
-15      then key[z] ← key[y]
-16           copy y's satellite data into z
-17  return y
+    // Initially n could be the root.
+    if (p != NULL) {
+        if (n == p->left) {
+            p->left = nnew;
+        } else if (n == p->right) {
+            p->right = nnew;
+        }
+    }
+    nnew->parent = p;
+}
 ```
 
-#### 红黑树的删除和删除修复
 
-OK，回到红黑树上来，红黑树节点删除的算法实现是：  
 
-RB-DELETE(T, z)   单纯删除节点的总操作  
+### 3.1 插入
+
+<font color=red>在下面的示意图中，将要插入的节点标为**N**(node)，N的父节点标为**P**(parent)，N的祖父节点标为**G**(grandfather)，N的叔父节点标为**U**(uncle)</font>
+
+#### （1）插入步骤
+
+先构想一下插入步骤
+
+1. 通过二叉查找树的递归方法找到插入位置并将新节点插入
+2. 插入后可能不符合性质，需要调整插入结点周围的位置或颜色
+3. 最后返回根节点
+
+插入首先以与标准二叉搜索树插入非常相似的方式添加节点，并将其着色为红色。最大的区别在于，在二叉搜索树中，一个新节点被添加为一个叶，而叶在红黑树中不包含任何信息，因此新节点替换了一个现有的叶子，然后添加了两个自己的黑叶子。
+
+```c
+RBTNode* Insert(RBTNode* root, RBTNode* n) {
+    // Insert new RBTNode into the current tree.
+    InsertRecurse(root, n);
+
+    // Repair the tree in case any of the red-black properties have been violated.
+    InsertRepairTree(n);
+
+    // Find the new root to return.
+    root = n;
+    while (GetParent(root) != NULL) {
+        root = GetParent(root);
+    }
+    return root;
+}
+
+void InsertRecurse(RBTNode* root, RBTNode* n) {
+    // Recursively descend the tree until a leaf is found.
+    if (root != NULL) {
+        if (n->key < root->key) {
+            if (root->left != NULL) {
+                InsertRecurse(root->left, n);
+                return;
+            } else {
+                root->left = n;
+            }
+        } else { // n->key >= root->key
+            if (root->right != NULL) {
+                InsertRecurse(root->right, n);
+                return;
+            } else {
+                root->right = n;
+            }
+        }
+    }
+
+    // Insert new RBTNode n.
+    n->parent = root;
+    n->left   = NULL;
+    n->right  = NULL;
+    n->color  = RED;
+}
 ```
- 1 if left[z] = nil[T] or right[z] = nil[T]  
- 2    then y ← z  
- 3    else y ← TREE-SUCCESSOR(z)  
- 4 if left[y] ≠ nil[T]  
- 5    then x ← left[y]  
- 6    else x ← right[y]  
- 7 p[x] ← p[y]  
- 8 if p[y] = nil[T]  
- 9    then root[T] ← x  
-10    else if y = left[p[y]]  
-11            then left[p[y]] ← x  
-12            else right[p[y]] ← x  
-13 if y ≠ z  
-14    then key[z] ← key[y]  
-15         copy y's satellite data into z  
-16 if color[y] = BLACK  
-17    then RB-DELETE-FIXUP(T, x)  
-18 return y  
+
+
+#### （2）插入修复
+
+&emsp;我们首先以二叉查找树的方法增加节点并标记它为红色。（如果设为黑色，就会导致根到叶子的路径上有一条路上，多一个额外的黑节点，这个是很难调整的。但是设为红色节点后，可能会导致出现两个连续红色节点的冲突，那么可以通过颜色调换（color flips）和树旋转来调整。）下面要进行什么操作取决于其他临近节点的颜色。
+
+**有几种红黑树插入需要处理**:
+
+1. N为根节点，即红黑树的第一个节点
+2. N的父母（P）是黑色
+3. P是红色的（所以它不可能是树根），N的叔叔（U）是红色的
+4. P是红色的，U是黑色的
+
+```c
+void InsertRepairTree(RBTNode* n) {
+    if (GetParent(n) == NULL) {
+        InsertCase1(n);
+    } else if (GetParent(n)->color == BLACK) {
+        InsertCase2(n);
+    } else if (GetUncle(n) != NULL && GetUncle(n)->color == RED) {
+        InsertCase3(n);
+    } else {
+        InsertCase4(n);
+    }
+}
 ```
 
-“在删除节点后，原红黑树的性质可能被改变，如果删除的是红色节点，那么原红黑树的性质依旧保持，此时不用做修正操作，如果删除的节点是黑色节点，原红黑树的性质可能会被改变，我们要对其做修正操作。那么哪些树的性质会发生变化呢，如果删除节点不是树唯一节点，那么删除节点的那一个支的到各叶节点的黑色节点数会发生变化，此时性质5被破坏。如果被删节点的唯一非空子节点是红色，而被删节点的父节点也是红色，那么性质4被破坏。如果被删节点是根节点，而它的唯一非空子节点是红色，则删除后新根节点将变成红色，违背性质2。”  
+**注意**：
 
-RB-DELETE-FIXUP(T, x)   恢复与保持红黑性质的工作  
+- 属性1（每个节点都是红色或黑色）和属性3（所有叶子都是黑色）始终有效。
+- 属性2（根为黑色）但插入为红色需检查并更正为情形1。
+- 属性4（红色节点只有黑色子节点）仅通过添加红色节点、将节点从黑色重新绘制为红色或旋转来受到威胁。
+- 属性5（从任何给定节点到其叶的所有路径都具有相同数量的黑色节点）仅通过添加黑色节点、重新绘制节点或旋转来受到威胁。
 
-```
- 1 while x ≠ root[T] and color[x] = BLACK  
- 2     do if x = left[p[x]]  
- 3           then w ← right[p[x]]  
- 4                if color[w] = RED  
- 5                   then color[w] ← BLACK                        ▹  Case 1  
- 6                        color[p[x]] ← RED                       ▹  Case 1  
- 7                        LEFT-ROTATE(T, p[x])                    ▹  Case 1  
- 8                        w ← right[p[x]]                         ▹  Case 1  
- 9                if color[left[w]] = BLACK and color[right[w]] = BLACK  
-10                   then color[w] ← RED                          ▹  Case 2  
-11                        x ← p[x]                                ▹  Case 2  
-12                   else if color[right[w]] = BLACK  
-13                           then color[left[w]] ← BLACK          ▹  Case 3  
-14                                color[w] ← RED                  ▹  Case 3  
-15                                RIGHT-ROTATE(T, w)              ▹  Case 3  
-16                                w ← right[p[x]]                 ▹  Case 3  
-17                         color[w] ← color[p[x]]                 ▹  Case 4  
-18                         color[p[x]] ← BLACK                    ▹  Case 4  
-19                         color[right[w]] ← BLACK                ▹  Case 4  
-20                         LEFT-ROTATE(T, p[x])                   ▹  Case 4  
-21                         x ← root[T]                            ▹  Case 4  
-22        else (same as then clause with "right" and "left" exchanged)  
-23 color[x] ← BLACK  
+
+
+**情形1**: 新节点N位于树的根上，没有父节点。在这种情形下，我们把它重绘为黑色以满足性质2。因为它在每个路径上对黑节点数目增加一，性质5符合。
+
+```c
+void InsertCase1(RBTNode* n) {
+    n->color = BLACK;
+}
 ```
 
-“上面的修复情况看起来有些复杂，下面我们用一个分析技巧：我们从被删节点后来顶替它的那个节点开始调整，并认为它有额外的一重黑色。这里额外一重黑色是什么意思呢，我们不是把红黑树的节点加上除红与黑的另一种颜色，这里只是一种假设，我们认为我们当前指向它，因此空有额外一种黑色，可以认为它的黑色是从它的父节点被删除后继承给它的，它现在可以容纳两种颜色，如果它原来是红色，那么现在是红+黑，如果原来是黑色，那么它现在的颜色是黑+黑。有了这重额外的黑色，原红黑树性质5就能保持不变。现在只要恢复其它性质就可以了，做法还是尽量向根移动和穷举所有可能性。"--saturnman。  
-
-如果是以下情况，恢复比较简单：
- - a)当前节点是红+黑色  
-    解法，直接把当前节点染成黑色，结束此时红黑树性质全部恢复。  
- - b)当前节点是黑+黑且是根节点，
-    解法：什么都不做，结束。
-
-但如果是以下情况呢？：
- - 删除修复情况1：当前节点是黑+黑且兄弟节点为红色(此时父节点和兄弟节点的子节点分为黑)
- - 删除修复情况2：当前节点是黑加黑且兄弟是黑色且兄弟节点的两个子节点全为黑色
- - 删除修复情况3：当前节点颜色是黑+黑，兄弟节点是黑色，兄弟的左子是红色，右子是黑色
- - 删除修复情况4：当前节点颜色是黑-黑色，它的兄弟节点是黑色，但是兄弟节点的右子是红色，兄弟节点左子的颜色任意
 
 
-此时，我们需要调用RB-DELETE-FIXUP(T, x)，来恢复与保持红黑性质的工作。
+**情形2**: 新节点的父节点P是黑色，所以性质4没有失效（新节点是红色的）。在这种情形下，树仍是有效的。性质5也未受到威胁，尽管新节点N有两个黑色叶子子节点；但由于新节点N是红色，通过它的每个子节点的路径就都有同通过它所取代的黑色的叶子的路径同样数目的黑色节点，所以依然满足这个性质。
 
-下面，咱们便来分别处理这4种删除修复情况。
-
-**删除修复情况1：当前节点是黑+黑且兄弟节点为红色(此时父节点和兄弟节点的子节点分为黑)。**
-
-  解法：把父节点染成红色，把兄弟节点染成黑色，之后重新进入算法（我们只讨论当前节点是其父节点左孩子时的情况）。此变换后原红黑树性质5不变，而把问题转化为兄弟节点为黑色的情况(注：变化前，原本就未违反性质5，只是为了**把问题转化为兄弟节点为黑色的情况**)。  即如下代码操作：
+```c
+void InsertCase2(RBTNode* n) {
+    // Do nothing since tree is still valid.
+    return;
+}
 ```
-//调用RB-DELETE-FIXUP(T, x) 的1-8行代码
- 1 while x ≠ root[T] and color[x] = BLACK
- 2     do if x = left[p[x]]
- 3           then w ← right[p[x]]
- 4                if color[w] = RED
- 5                   then color[w] ← BLACK                        ▹  Case 1
- 6                        color[p[x]] ← RED                       ▹  Case 1
- 7                        LEFT-ROTATE(T, p[x])                    ▹  Case 1
- 8                        w ← right[p[x]]                         ▹  Case 1
+
+ 
+
+**注意**：在下面的情况下，可以假设N有一个祖父母节点G，因为它的父节点P是红色的，如果它是根节点，它将是黑色的。因此，N也具有叔叔节点U，尽管在情况4中它可以是叶。 
+**注意**：在其余的情况下，图中显示了父节点P是其父节点的左子节点，即使P可能位于任意一侧。代码示例已经涵盖了这两种可能性。 
+
+
+
+**情况3**：如果父节点P和父节点U都是红色的，那么它们都可以重新绘制为黑色，而祖父母G则变为红色以保持属性5（从节点到叶子的所有路径都包含相同数量的黑色节点）。由于通过父节点或父节点的任何路径都必须经过祖父母节点，所以这些路径上的黑色节点数没有改变。但是，如果祖父母G是根，那么它现在可能会违反属性2（根是黑色的），如果它有一个红色的父节点，则它可能违反属性4（每个红色节点的两个子节点都是黑色的）。为了解决这个问题，树的红黑修复过程在G上重新运行。
+
+![](./../picture/Red-black_tree_insert_case_3.png)
+
+
+```c
+void InsertCase3(RBTNode* n) {
+    GetParent(n)->color      = BLACK;
+    GetUncle(n)->color       = BLACK;
+    GetGrandParent(n)->color = RED;
+    InsertRepairTree(GetGrandParent(n));
+}
 ```
-变化前：  
 
-![](../images/rbtree/10.jpg)
 
-变化后：  
 
-![](../images/rbtree/11.jpg)
+**注意**：在余下的情形下，我们假定父节点P是其祖父G的左子节点。如果它是右子节点，情形4和情形4_2中的*左*和*右*应当对调。
 
-**删除修复情况2：当前节点是黑加黑且兄弟是黑色且兄弟节点的两个子节点全为黑色。**
+**情况4**: 步骤1：父元素P是红色的，但是U叔叔是黑色的（这意味着P的左或右子元素必须是黑色的）。最终目标是将新节点N旋转到祖父位置，但如果N位于G下子树的“内部”（即，如果N是G的右子节点的左子节点或G的左子节点的右子节点），则这将不起作用。在这个例子中，我们通过一个标记为“P”的子树的旋转（在这个例子中，我们通过一个标记为“P”的子树的旋转来增加它的子路径）。但是P和N都是红色的，所以属性5（从一个节点到它的叶子的所有路径包含相同数量的黑色节点）被保留。属性4（每个红色节点的两个子节点都是黑色的）在步骤2中被恢复。 
 
-  解法：把当前节点和兄弟节点中抽取一重黑色追加到父节点上，把父节点当成新的当前节点，重新进入算法。（此变换后性质5不变），即调用RB-INSERT-FIXUP(T, z) 的第9-10行代码操作，如下：
+![](./../picture/Red-black_tree_insert_case_4.png)
+
+
+```c
+void InsertCase4(RBTNode* n) {
+    RBTNode* p = GetParent(n);
+    RBTNode* g = GetGrandParent(n);
+
+    if (n == p->right && p == g->left) {
+        RotateLeft(p);
+        n = n->left;
+    } else if (n == p->left && p == g->right) {
+        RotateRight(p);
+        n = n->right;
+    }
+
+    InsertCase4Step2(n);
+}
 ```
-//调用RB-DELETE-FIXUP(T, x) 的9-11行代码
-9                if color[left[w]] = BLACK and color[right[w]] = BLACK
-10                   then color[w] ← RED                          ▹  Case 2
-11                        x p[x]                                  ▹  Case 2
+
+
+
+**情况4**: 步骤2：新节点N现在确定位于祖父母G下子树的“外部”（左边的子节点或右边的子节点的右边）。在G上做一个右旋转，用P代替G，使P成为N和G的父对象。G是黑色的，它的前一个子P是红色的，因为违反了属性4。切换P和G的颜色。生成的树满足属性4（红色节点有黑色子节点）。从G到N的所有路径都满足了，因为P穿过了所有的路径。 
+
+![](./../picture/Red-black_tree_insert_case_5.png)
+
+
+
+```c
+void InsertCase4Step2(RBTNode* n) {
+    RBTNode* p = GetParent(n);
+    RBTNode* g = GetGrandParent(n);
+
+    if (n == p->left) {
+        RotateRight(g);
+    } else {
+        RotateLeft(g);
+    }
+    p->color = BLACK;
+    g->color = RED;
+}
 ```
-变化前：  
-
-![](../images/rbtree/12.jpg)
-
-变化后：  
-
-![](../images/rbtree/13.jpg)
-
-**删除修复情况3：当前节点颜色是黑+黑，兄弟节点是黑色，兄弟的左子是红色，右子是黑色。**
-
-  解法：把兄弟节点染红，兄弟左子节点染黑，之后再在兄弟节点为支点解右旋，之后重新进入算法。此是把当前的情况转化为情况4，而性质5得以保持，即调用RB-INSERT-FIXUP(T, z) 的第12-16行代码，如下所示：
-```
-//调用RB-DELETE-FIXUP(T, x) 的第12-16行代码
-12                   else if color[right[w]] = BLACK
-13                           then color[left[w]] ← BLACK          ▹  Case 3
-14                                color[w] ← RED                  ▹  Case 3
-15                                RIGHT-ROTATE(T, w)              ▹  Case 3
-16                                w ← right[p[x]]                 ▹  Case 3
-```
-变化前：  
-
-![](../images/rbtree/14.jpg)
-
-变化后：  
-
-![](../images/rbtree/15.jpg)
-
-**删除修复情况4：当前节点颜色是黑-黑色，它的兄弟节点是黑色，但是兄弟节点的右子是红色，兄弟节点左子的颜色任意。**  
-
-  解法：把兄弟节点染成当前节点父节点的颜色，把当前节点父节点染成黑色，兄弟节点右子染成黑色，之后以当前节点的父节点为支点进行左旋，此时算法结束，红黑树所有性质调整正确，即调用RB-INSERT-FIXUP(T, z)的第17-21行代码，如下所示：
-```
-//调用RB-DELETE-FIXUP(T, x) 的第17-21行代码
-17                         color[w] ← color[p[x]]                 ▹  Case 4
-18                         color[p[x]] ← BLACK                    ▹  Case 4
-19                         color[right[w]] ← BLACK                ▹  Case 4
-20                         LEFT-ROTATE(T, p[x])                   ▹  Case 4
-21                         x ← root[T]                            ▹  Case 4
-```
-变化前：  
-
-![](../images/rbtree/16.jpg)
-
-变化后：  
-
-![](../images/rbtree/17.jpg)
 
 
 
-### 红黑树的应用
+&emsp;在上面的算法中，所有的情况只被调用一次，除了在情况3中，它可以递归回使用祖父母节点的情况1，这是唯一一个迭代实现将有效循环的情况。因为在这种情况下，修复问题每次都会升级两个级别（修复祖父节点），所以修复树（其中h是树的高度）最多需要h⁄2次迭代。因为升级的概率随着每次迭代而呈指数级降低，所以平均插入成本实际上是恒定的。
+
+
+
+
+### 3.2 删除
+
+
+
+
+
+## 红黑树的应用
 
 红黑树的时间复杂度为: O(lgn)
 
 1. Java 集合中的 TreeSet、TreeMap
 2. C++ STL 中的 set、map
 3. Linux 虚拟内存的管理
+
+
+
+
+
+## 参考资料
+
+(1) [浅析红黑树（RBTree）原理及实现](https://blog.csdn.net/tanrui519521/article/details/80980135)
+
+(2) [红黑树(一)之 原理和算法详细介绍](https://www.cnblogs.com/skywang12345/p/3245399.html)
+
+(3) [教你透彻了解红黑树](https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md)
+
+(4) 维基百科：中文版C++ [红黑树](https://zh.wikipedia.org/wiki/%E7%BA%A2%E9%BB%91%E6%A0%91#%E6%8F%92%E5%85%A5)、英文版C [Red–black tree](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree)
