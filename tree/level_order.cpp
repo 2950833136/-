@@ -6,19 +6,18 @@
 
 #define MAX_SIZE 1024
 #define STR_SIZE 1024
-#define SPACE    6
 
-typedef struct Node {    //定义二叉链
-    struct Node* lchild; //指向左孩子节点
-    char         data;   //数据元素
-    struct Node* rchild; //指向右孩子节点
-} BTNode;                //struct Node 的别名
+typedef struct Node {    // 定义二叉链
+    char         key;    // 数据元素
+    struct Node* lchild; // 指向左孩子节点
+    struct Node* rchild; // 指向右孩子节点
+} BTNode;                // struct Node 的别名
 
-typedef struct Quene {      //定义顺序队
-    int     front;          //队头指针
-    BTNode* data[MAX_SIZE]; //存放队中元素
-    int     rear;           //队尾指针
-} SqQueue;                  //struct Queue 的别名
+typedef struct Quene {     // 定义顺序队
+    BTNode* key[MAX_SIZE]; // 存放队中元素
+    int     front;         // 队头指针
+    int     rear;          // 队尾指针
+} SqQueue;                 // struct Queue 的别名
 
 //初始化队列
 void initQueue(SqQueue*& q) {
@@ -40,9 +39,9 @@ bool enQueue(SqQueue*& q, BTNode*& BT) {
     if (q->rear == MAX_SIZE - 1) { //判断队列是否满了
         return false;              //返回假
     }
-    q->rear++;             //头指针加 1
-    q->data[q->rear] = BT; //传值
-    return true;           //返回真
+    q->rear++;            //头指针加 1
+    q->key[q->rear] = BT; //传值
+    return true;          //返回真
 }
 
 //出队列
@@ -50,9 +49,9 @@ bool deQueue(SqQueue*& q, BTNode*& BT) {
     if (q->front == q->rear) { //判断是否空了
         return false;          //返回假
     }
-    q->front++;             //尾指针加 1
-    BT = q->data[q->front]; //取值
-    return true;            //返回真
+    q->front++;            //尾指针加 1
+    BT = q->key[q->front]; //取值
+    return true;           //返回真
 }
 
 //创建二叉树
@@ -63,10 +62,10 @@ int createBTNode(BTNode*& BT, char* str, int n) {
         if (ch == '#') { //以 # 号代表 NULL，下面没有了
             BT = NULL;
         } else {
-            BT       = new BTNode;                       //新建一个二叉链
-            BT->data = ch;                               //把字符存入二叉链
-            n        = createBTNode(BT->lchild, str, n); //左递归创建
-            n        = createBTNode(BT->rchild, str, n); //右递归创建
+            BT      = new BTNode;                       //新建一个二叉链
+            BT->key = ch;                               //把字符存入二叉链
+            n       = createBTNode(BT->lchild, str, n); //左递归创建
+            n       = createBTNode(BT->rchild, str, n); //右递归创建
         }
     }
     return n; //返回 n,记录字符串使用到哪里了
@@ -84,7 +83,7 @@ int createBTNode(BTNode*& BT, char* str, int n) {
 //			return;
 //		}
 //		else {
-//			(*BT)->data = ch;
+//			(*BT)->key = ch;
 //			createBTNode(&((*BT)->lchild));		//分配成功则接着建立左子树和右子树
 //			createBTNode(&((*BT)->rchild));
 //		}
@@ -93,10 +92,10 @@ int createBTNode(BTNode*& BT, char* str, int n) {
 
 //先序遍历
 void preOrder(BTNode*& BT) {
-    if (BT != NULL) {           //判断不为空
-        printf("%c", BT->data); //访问根节点
-        preOrder(BT->lchild);   //递归，先序遍历左子树
-        preOrder(BT->rchild);   //递归，先序遍历右子树
+    if (BT != NULL) {          //判断不为空
+        printf("%c", BT->key); //访问根节点
+        preOrder(BT->lchild);  //递归，先序遍历左子树
+        preOrder(BT->rchild);  //递归，先序遍历右子树
     }
 }
 
@@ -104,7 +103,7 @@ void preOrder(BTNode*& BT) {
 void inOrder(BTNode*& BT) {
     if (BT != NULL) {
         inOrder(BT->lchild);
-        printf("%c", BT->data);
+        printf("%c", BT->key);
         inOrder(BT->rchild);
     }
 }
@@ -114,7 +113,7 @@ void postOrder(BTNode*& BT) {
     if (BT != NULL) {
         postOrder(BT->lchild);
         postOrder(BT->rchild);
-        printf("%c", BT->data);
+        printf("%c", BT->key);
     }
 }
 
@@ -127,7 +126,7 @@ void levelOrder(BTNode*& BT) {
     }
     while (emptyQueue(q) != true) { //队不为空循环
         deQueue(q, BT);             //出队时的节点
-        printf("%c", BT->data);     //输出节点存储的值
+        printf("%c", BT->key);      //输出节点存储的值
         if (BT->lchild != NULL) {   //有左孩子时将该节点进队列
             enQueue(q, BT->lchild);
         }
@@ -138,7 +137,7 @@ void levelOrder(BTNode*& BT) {
 }
 
 /*****************************************************************************
-* @data  : 2020/4/19
+* @date  : 2020/4/19
 * @brief : 水平画树
 * @input :
 *   root: 树
@@ -155,17 +154,17 @@ void draw_level(BTNode* root, bool left, char* str) {
     printf("%s", str);
     printf("%c", (left ? '\\' : '/'));
     printf("-----");
-    printf("%c\n", root->data);
+    printf("%c\n", root->key);
 
     if (root->lchild) {
         draw_level(root->lchild, true, strcat(str, (left ? "      " : "|     ")));
     }
-
-    str[strlen(str) - SPACE] = '\0';
+    // "      " : "|     " 长度6
+    str[strlen(str) - 6] = '\0';
 }
 
 /*****************************************************************************
-* @data  : 2020/4/19
+* @date  : 2020/4/19
 * @brief : 根节点画树
 * @input :
 *   root : 树
@@ -179,7 +178,7 @@ void draw(BTNode* root) {
     if (root->rchild) {
         draw_level(root->rchild, false, str);
     }
-    printf("%c\n", root->data);
+    printf("%c\n", root->key);
     if (root->lchild) {
         draw_level(root->lchild, true, str);
     }
