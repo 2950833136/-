@@ -63,13 +63,15 @@ typedef struct _Red_Black_Tree_Node {
     struct _Red_Black_Tree_Node* left;
     struct _Red_Black_Tree_Node* right;
 } RBTNode;
+
+RBTNode* NIL = NewNode(0, BLACK, NULL, NULL, NULL);
 ```
 
 #### （2）获取各种节点
 
 ```c
 RBTNode* GetParent(RBTNode* n) {
-    // Note that parent is set to null for the root .
+    // Note that parent is set to NULL for the root .
     return n == NULL ? NULL : n->parent;
 }
 
@@ -131,12 +133,12 @@ void RotateLeft(RBTNode* n) {
     nnew->left = n;
     n->parent  = nnew;
     // Handle other child/parent pointers.
-    if (n->right != NULL) {
+    if (n->right != NIL) {
         n->right->parent = n;
     }
 
     // Initially n could be the root.
-    if (p != NULL) {
+    if (p != NIL) {
         if (n == p->left) {
             p->left = nnew;
         } else if (n == p->right) {
@@ -162,7 +164,7 @@ void RotateRight(RBTNode* n) {
     n->parent   = nnew;
 
     // Handle other child/parent pointers.
-    if (n->left != NULL) {
+    if (n->left != NIL) {
         n->left->parent = n;
     }
 
@@ -214,14 +216,14 @@ void InsertRecurse(RBTNode* root, RBTNode* n) {
     // Recursively descend the tree until a leaf is found.
     if (root != NULL) {
         if (n->key < root->key) {
-            if (root->left != NULL) {
+            if (root->left != NIL) {
                 InsertRecurse(root->left, n);
                 return;
             } else {
                 root->left = n;
             }
         } else { // n->key >= root->key
-            if (root->right != NULL) {
+            if (root->right != NIL) {
                 InsertRecurse(root->right, n);
                 return;
             } else {
@@ -232,8 +234,8 @@ void InsertRecurse(RBTNode* root, RBTNode* n) {
 
     // Insert new RBTNode n.
     n->parent = root;
-    n->left   = NULL;
-    n->right  = NULL;
+    n->left   = NIL;
+    n->right  = NIL;
     n->color  = RED;
 }
 ```
@@ -256,7 +258,7 @@ void InsertRepairTree(RBTNode* n) {
         InsertCase1(n);
     } else if (GetParent(n)->color == BLACK) {
         InsertCase2(n);
-    } else if (GetUncle(n) != NULL && GetUncle(n)->color == RED) {
+    } else if (GetUncle(n) != NIL && GetUncle(n)->color == RED) {
         InsertCase3(n);
     } else {
         InsertCase4(n);
@@ -368,14 +370,236 @@ void InsertCase4Step2(RBTNode* n) {
 
 
 
-
 ### 3.2 删除
 
+<font color=red>在下面的示意图中，将要插入的节点标为**N**(node)，N的父节点标为**P**(parent)，N的祖父节点标为**G**(grandfather)，N的叔父节点标为**U**(uncle)，N的兄弟为 **S**(sibling)，**$S_{L}$** 称呼S的左儿子，**$S_{R}$** 称呼S的右儿子。</font>
+
+#### （1）删除步骤
+
+**如果需要删除的节点有两个儿子，那么问题可以被转化成删除另一个只有一个儿子的节点的问题**（为了表述方便，这里所指的儿子，为非叶子节点的儿子）。对于二叉查找树，在删除带有两个非叶子儿子的节点的时候，我们要么找到它左子树中的最大元素、要么找到它右子树中的最小元素，并把它的值转移到要删除的节点中。我们接着删除我们从中复制出值的那个节点，它必定有少于两个非叶子的儿子。**因为只是复制了一个值（没有复制颜色），不违反任何性质，这就把问题简化为如何删除最多有一个儿子的节点的问题**。
+
+在本文余下的部分中，**我们只需要讨论删除只有一个儿子的节点**（如果它两个儿子都为空，即均为叶子，我们任意将其中一个看作它的儿子）: 
+
+1. **如果我们删除一个红色节点（此时该节点的儿子将都为叶子节点），它的父亲和儿子一定是黑色的**。所以我们可以简单的用它的黑色儿子替换它，并不会破坏性质3和性质4。通过被删除节点的所有路径只是少了一个红色节点，这样可以继续保证性质5。
+2. **另一种简单情况是在被删除节点是黑色而它的儿子是红色的时候**。如果只是去除这个黑色节点，用它的红色儿子顶替上来的话，会破坏性质5，但是如果我们重绘它的儿子为黑色，则曾经通过它的所有路径将通过它的黑色儿子，这样可以继续保持性质5。
+
+3. **需要进一步讨论的是在要删除的节点和它的儿子二者都是黑色的时候**。这是一种复杂的情况（这种情况下该结点的两个儿子都是叶子结点，否则若其中一个儿子是黑色非叶子结点，另一个儿子是叶子结点，那么从该结点通过非叶子结点儿子的路径上的黑色结点数最小为2，而从该结点到另一个叶子结点儿子的路径上的黑色结点数为1，违反了性质5）。我们首先把要删除的节点替换为它的儿子。出于方便，称呼这个儿子为 **N**（在新的位置上），称呼它的兄弟（它父亲的另一个儿子）为 **S**。在下面的示意图中，我们还是使用 **P** 称呼 **N** 的父亲，**$S_{L}$** 称呼S的左儿子，**$S_{R}$** 称呼S的右儿子。
 
 
 
+我们可以使用以下代码执行上面概述的步骤，其中函数 ReplaceNode 将 child 替换为树中 n 的位置。
 
-## 红黑树的应用
+```c
+bool DeleteNode(RBTNode* root, int key) {
+    if (key < root->key) {
+        if (root->left == NIL) {
+            return false;
+        }
+        return DeleteNode(root->left, key);
+    } else if (key > root->key) {
+        if (root->right == NIL) {
+            return false;
+        }
+        return DeleteNode(root->right, key);
+    } else if (key == root->key) {
+        if (root->right == NIL) {
+            DeleteOneChild(root);
+            return true;
+        }
+        RBTNode* smallest = getSmallestChild(root->left);
+        root->key         = smallest->key;
+        DeleteOneChild(smallest);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void ReplaceNode(RBTNode* n, RBTNode* child) {
+    child->parent = n->parent;
+    if (n == n->parent->left) {
+        n->parent->left = child;
+    } else {
+        n->parent->right = child;
+    }
+}
+
+void DeleteOneChild(RBTNode* n) {
+    // Precondition: n has at most one non-leaf child.
+    RBTNode* child = (n->right == NIL) ? n->left : n->right;
+    assert(child);
+
+    // 儿子直接替换
+    ReplaceNode(n, child);
+    /**
+     * 1. 红色
+     *      - 替换了，直接释放删除即可
+     * 2. 黑色
+     *      - 儿子红色，儿子改黑色
+     *      - 儿子黑色，依次讨论
+     */
+    if (n->color == BLACK) {
+        if (child->color == RED) {
+            child->color = BLACK;
+        } else {
+            DeleteCase1(child);
+        }
+    }
+    free(n);
+}
+```
+
+
+
+#### （2）删除修复
+
+如果N和它初始的父亲是黑色，则删除它的父亲导致通过N的路径都比不通过它的路径少了一个黑色节点。因为这违反了性质5，树需要被重新平衡。有几种情形需要考虑：
+
+**情形1:** N是新的根。我们从每个路径中删除了一个黑色节点，新的根是黑色的，因此属性被保留。
+
+```c
+void DeleteCase1(RBTNode* n) {
+    if (n->parent != NULL) {
+        DeleteCase2(n);
+    }
+}
+```
+
+**注意**：在案例2、5和6中，我们假设 N 是其父 P 的左儿子，如果是右儿子，则在这三种情况下，左、右应该颠倒
+
+
+
+**情形二**：S是红色的。在本例中，我们反转P和S的颜色，然后在P处向左旋转，将S变成N的祖父母。注意P必须是黑色的，因为它有一个红色的孩子。结果子树的路径短于一个黑色节点，因此我们还没有完成。现在N有一个黑色的兄弟姐妹和一个红色的父对象，所以我们可以继续执行步骤4、5或6。（它的新兄弟是黑色的，因为它曾经是红色S的子代）在以后的情况下，我们将重新标记N的新兄弟姐妹为S。
+
+![](./../picture/Red-black_tree_delete_case_2.png)
+
+```c
+void DeleteCase2(RBTNode* n) {
+    RBTNode* s = GetSibling(n);
+
+    if (s->color == RED) {
+        n->parent->color = RED;
+        s->color         = BLACK;
+        if (n == n->parent->left) {
+            RotateLeft(n->parent);
+        } else {
+            RotateRight(n->parent);
+        }
+    }
+    DeleteCase3(n);
+}
+```
+
+
+
+**情形三**：**P**，**S**，**S的孩子**都是黑色。在这种情形下，我们简单的重绘S为红色。结果是通过S的所有路径，它们就是以前*不*通过N的那些路径，都少了一个黑色节点。因为删除N的初始的父亲使通过N的所有路径少了一个黑色节点，这使事情都平衡了起来。但是，通过P的所有路径现在比不通过P的路径少了一个黑色节点，所以仍然违反性质5。要修正这个问题，我们要从**情形1**开始，在P上做重新平衡处理。
+
+![](../picture/Red-black_tree_delete_case_3.png)
+
+```c
+void DeleteCase3(RBTNode* n) {
+    RBTNode* s = GetSibling(n);
+
+    if ((n->parent->color == BLACK) && (s->color == BLACK) &&
+        (s->left->color == BLACK) && (s->right->color == BLACK)) {
+        s->color = RED;
+        DeleteCase1(n->parent);
+    } else {
+        DeleteCase4(n);
+    }
+}
+```
+
+
+
+**情形四**：**S** 和 **S的孩子** 是黑色，而 **P** 是红色。在这种情况下，我们只需交换 **S** 和 **P** 的颜色。这不会影响经过S的路径上的黑色节点的数量，但它确实会在经过N的路径上的黑色节点的数量上增加一个，以弥补这些路径上删除的黑色节点。
+
+![](../picture/Red-black_tree_delete_case_4.png)
+
+```c
+void DeleteCase4(RBTNode* n) {
+    RBTNode* s = GetSibling(n);
+
+    if ((n->parent->color == RED) && (s->color == BLACK) &&
+        (s->left->color == BLACK) && (s->right->color == BLACK)) {
+        s->color         = RED;
+        n->parent->color = BLACK;
+    } else {
+        DeleteCase5(n);
+    }
+}
+```
+
+
+
+**情形5**: S是黑色，S的左子项是红色，S的右子项是黑色，N是其父项的左子项。在本例中，我们在S处向右旋转，这样S的左子元素成为S的父元素，而N的新同级元素。然后我们交换S和它的新父对象的颜色。所有的路径仍然有相同数量的黑色节点，但是现在N有一个黑色的同级节点，它的右边的子节点是红色的，所以我们进入到**情形6**中。N及其父级都不受此转换的影响。（同样，对于案例6，我们将N的新兄弟标记为S）
+
+![](../picture/Red-black_tree_delete_case_5.png)
+
+```c
+void DeleteCase5(RBTNode* n) {
+    RBTNode* s = GetSibling(n);
+
+    // This if statement is trivial, due to case 2 (even though case 2 changed
+    // the sibling to a sibling's child, the sibling's child can't be red, since
+    // no red parent can have a red child).
+    if (s->color == BLACK) {
+        // The following statements just force the red to be on the left of the
+        // left of the parent, or right of the right, so case six will rotate
+        // correctly.
+        if ((n == n->parent->left) && (s->right->color == BLACK) &&
+            (s->left->color == RED)) {
+            // This last test is trivial too due to cases 2-4.
+            s->color       = RED;
+            s->left->color = BLACK;
+            RotateRight(s);
+        } else if ((n == n->parent->right) && (s->left->color == BLACK) &&
+                   (s->right->color == RED)) {
+            // This last test is trivial too due to cases 2-4.
+            s->color        = RED;
+            s->right->color = BLACK;
+            RotateLeft(s);
+        }
+    }
+    DeleteCase6(n);
+}
+```
+
+
+
+**情形6：** S是黑色，S的右儿子是红色，而N是它父亲的左儿子。在这种情形下我们在N的父亲上做左旋转，这样S成为N的父亲（P）和S的右儿子的父亲。我们接着交换N的父亲和S的颜色，并使S的右儿子为黑色。子树在它的根上的仍是同样的颜色，所以性质3没有被违反。但是，N现在增加了一个黑色祖先：要么N的父亲变成黑色，要么它是黑色而S被增加为一个黑色祖父。所以，通过N的路径都增加了一个黑色节点。
+
+此时，如果一个路径不通过N，则有两种可能性：
+
+- 它通过N的新兄弟。那么它以前和现在都必定通过S和N的父亲，而它们只是交换了颜色。所以路径保持了同样数目的黑色节点。
+- 它通过N的新叔父，S的右儿子。那么它以前通过S、S的父亲和S的右儿子，但是现在只通过S，它被假定为它以前的父亲的颜色，和S的右儿子，它被从红色改变为黑色。合成效果是这个路径通过了同样数目的黑色节点。
+
+在任何情况下，在这些路径上的黑色节点数目都没有改变。所以我们恢复了性质4。在示意图中的白色节点可以是红色或黑色，但是在变换前后都必须指定相同的颜色。
+
+![](../picture/Red-black_tree_delete_case_6.png)
+
+```c
+void DeleteCase6(RBTNode* n) {
+    RBTNode* s = GetSibling(n);
+
+    s->color         = n->parent->color;
+    n->parent->color = BLACK;
+
+    if (n == n->parent->left) {
+        s->right->color = BLACK;
+        RotateLeft(n->parent);
+    } else {
+        s->left->color = BLACK;
+        RotateRight(n->parent);
+    }
+}
+```
+
+
+
+## 4. 总结
+
+### （1）红黑树的应用
 
 红黑树的时间复杂度为: O(lgn)
 
@@ -383,11 +607,17 @@ void InsertCase4Step2(RBTNode* n) {
 2. C++ STL 中的 set、map
 3. Linux 虚拟内存的管理
 
+### （2）说明
+
+我们在打印生成树时，一般省略 空节点（NIL）。
+
+### （3）全部代码
 
 
 
 
-## 参考资料
+
+## 5. 参考资料
 
 (1) [浅析红黑树（RBTree）原理及实现](https://blog.csdn.net/tanrui519521/article/details/80980135)
 
