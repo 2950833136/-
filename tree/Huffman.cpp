@@ -74,14 +74,14 @@ int main() {
     showHC(HC, n);
     // 如果是 手打 或者 默认，需要手动输入字符串编码解码，而读取文件直接将文件编码解码
     if (type == 0 || type == 1) {
-        printf("请输入编码的字符串：");
+        printf("请输入编码的字符串：\n");
         scanf("\n%[^\n]", str); // 输入带空格字符串
     }
     encode(HC, n, str, binary);
-    printf("哈夫曼编码为：%s\n", binary);
+    printf("\n\n哈夫曼编码为：\n%s", binary);
     memset(str, 0, sizeof(char) * BUFF_SIZE);
     decode(HC, n, binary, str);
-    printf("哈夫曼译码为：%s\n", str);
+    printf("\n\n哈夫曼译码为：\n%s", str);
 
     return 0;
 }
@@ -284,7 +284,7 @@ void inputHand(HTNode** HT, int* n) {
     char     dataArray[CODE_SIZE];
     Elemtype weightArray[CODE_SIZE];
 
-    printf("请输入哈夫曼叶子结点：");
+    printf("请输入哈夫曼叶子结点：\n");
     scanf("%d", n);
     printf("请输入结点和权值(例如A 1)：\n"); // 规律，总结点个数为叶子结点两倍减一，2*N-1
     while (i / 2 < *n) {                     // scanf 读取空格截止
@@ -315,7 +315,7 @@ void inputFile(HTNode** HT, int* n, char* str) {
     memset(hash, 0, sizeof(int) * CODE_SIZE);
     *n = 0;
 
-    FILE* fp = fopen("D:\\VScode\\Github\\Data-Structure\\二叉树\\test.txt", "r+");
+    FILE* fp = fopen("D:\\VScode\\Github\\Data-Structure\\tree\\test.txt", "r+");
     for (int i = 0; !feof(fp); i++) {
         int ch = fgetc(fp);
         hash[ch]++;
