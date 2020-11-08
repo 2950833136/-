@@ -121,7 +121,7 @@ RBTNode* GetUncle(RBTNode* n) {
 
 **左旋**
 
-```C
+```c
 void RotateLeft(RBTNode* n) {
     RBTNode* nnew = n->right;
     RBTNode* p    = GetParent(n);
@@ -390,6 +390,13 @@ void InsertCase4Step2(RBTNode* n) {
 我们可以使用以下代码执行上面概述的步骤，其中函数 ReplaceNode 将 child 替换为树中 n 的位置。
 
 ```c
+RBTNode* getSmallestChild(RBTNode* n) {
+    if (n->right == NIL) {
+        return n;
+    }
+    return getSmallestChild(n->right);
+}
+
 bool DeleteNode(RBTNode* root, int key) {
     if (key < root->key) {
         if (root->left == NIL) {
@@ -611,7 +618,10 @@ void DeleteCase6(RBTNode* n) {
 
 我们在打印生成树时，一般省略 空节点（NIL）。
 
-### （3）全部代码
+### （3）动态演示
+[Red/Black Tree](https://www.cs.usfca.edu/~galles/visualization/RedBlack.html)
+
+### （4）全部代码
 
 https://github.com/2950833136/Data-Structure/blob/master/tree/RBT.cpp
 
