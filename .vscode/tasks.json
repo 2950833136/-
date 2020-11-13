@@ -6,7 +6,7 @@
         {
             "type": "shell",
             "label": "g++",
-            "command": "E:\\cygwin64\\bin\\g++.exe",
+            "command": "D:\\cygwin64\\bin\\g++.exe",
             "args": [
                 "-g",
                 "${file}",
@@ -14,7 +14,7 @@
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
             "options": {
-                "cwd": "E:\\cygwin64\\bin"
+                "cwd": "D:\\cygwin64\\bin"
             },
             "problemMatcher": [
                 "$gcc"
