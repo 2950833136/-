@@ -16,6 +16,7 @@
         "unordered_set": "cpp",
         "map": "cpp"
     },
+    "editor.formatOnSave": true,
     // Visual Studio  LLVM  Google  Chromium  Mozilla  WebKit
     // "C_Cpp.clang_format_style": "{BasedOnStyle: LLVM}"
     "C_Cpp.clang_format_style": "file"

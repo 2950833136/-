@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <malloc.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -67,6 +68,7 @@ int main() {
     default:
         break;
     }
+
     createHT(HT, n);
     draw(HT[2 * n - 2]);
     createHC(HT[2 * n - 2], HC, array, 0, 0);
@@ -78,10 +80,10 @@ int main() {
         scanf("\n%[^\n]", str); // 输入带空格字符串
     }
     encode(HC, n, str, binary);
-    printf("\n\n哈夫曼编码为：\n%s", binary);
+    printf("\n哈夫曼编码为：\n%s", binary);
     memset(str, 0, sizeof(char) * BUFF_SIZE);
     decode(HC, n, binary, str);
-    printf("\n\n哈夫曼译码为：\n%s", str);
+    printf("\n哈夫曼译码为：\n%s", str);
 
     return 0;
 }
@@ -155,16 +157,14 @@ void codeSort(HCode* HC, int n) {
 }
 
 /*****************************************************************************
-* @date  : 2020/5/22
-* @brief : 创建哈夫曼码
-* @param :
-*   HT : 哈夫曼树根节点
-*   HC : 存放哈夫曼码指针
-*   array : 通用暂时存放哈夫曼码（截断）
-*   n : 传递下标
-*   m : 回溯树高（层次）
-* @return:
-*   n : 第 n 个字母
+* @date    2020/5/22
+* @brief   创建哈夫曼码
+* @param   HT    哈夫曼树根节点
+* @param   HC    存放哈夫曼码指针
+* @param   array 通用暂时存放哈夫曼码（截断）
+* @param   n     传递下标
+* @param   m     回溯树高（层次）
+* @return  n     第 n 个字母
 *****************************************************************************/
 int createHC(HTNode* HT, HCode* HC, char* array, int n, int m) {
     if (HT->data != '#') {
@@ -219,11 +219,10 @@ void draw(HTNode* root) {
 }
 
 /*****************************************************************************
-* @date  : 2020/5/22
-* @brief : 创建哈夫曼树（二级指针）
-* @param :
-*   HT : 哈夫曼树
-*   n  : 字母个数
+* @date   2020/5/22
+* @brief  创建哈夫曼树（二级指针）
+* @param  HT 哈夫曼树
+* @param  n  字母个数
 *****************************************************************************/
 void createHT(HTNode** HT, int n) {
     int      start = 0; // 记录未创建（未排序）的下标
@@ -242,12 +241,6 @@ void createHT(HTNode** HT, int n) {
         start += 2;
         end++;
     }
-    // printf("index\tdata\tweight\n");
-    // for (int i = 0; i < 2 * n - 1; i++) {		// 各种属性，输出看一看，有没有问题
-    // 	printf("%5d\t", i);
-    // 	printf("%4c\t", HT[i]->data);
-    // 	printf("%6d\n", HT[i]->weight);
-    // }
 }
 
 void nodeSort(HTNode** HT, int start, int end) {
@@ -274,7 +267,7 @@ HTNode* newNode(char data, Elemtype weight) {
 
 /**
  * 1、手动输入，不能输入空格
- * 2、创建数组，自动遍历
+ * 2、默认数组，自动遍历
  * 3、读取文件，变成数组
  */
 void inputHand(HTNode** HT, int* n) {
@@ -316,10 +309,10 @@ void inputFile(HTNode** HT, int* n, char* str) {
     *n = 0;
 
     FILE* fp = fopen("D:\\VScode\\Github\\Data-Structure\\tree\\test.txt", "r+");
-    for (int i = 0; !feof(fp); i++) {
-        int ch = fgetc(fp);
+    while (!feof(fp)) {
+        char ch = fgetc(fp);
+        *str++  = ch;
         hash[ch]++;
-        *str++ = (char)ch;
     }
 
     for (int i = 0; i < 256; i++) {
