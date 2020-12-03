@@ -26,7 +26,7 @@ void CountSort(int* nums, int numsSize) {
         }
     }
 
-    int space = max - min + 1;
+    int  space    = max - min + 1;
     int* arrCount = (int*)malloc(sizeof(int) * space);
     for (int i = 0; i < space; i++) {
         arrCount[i] = 0;
@@ -51,7 +51,7 @@ void CountSort(int* nums, int numsSize) {
 
 int main() {
     int array[] = {1, 1, 5, 5, 2};
-    int size = sizeof(array) / sizeof(array[0]);
+    int size    = sizeof(array) / sizeof(array[0]);
 
     display(array, size);
     CountSort(array, size);
