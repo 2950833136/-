@@ -244,13 +244,11 @@ int height_update(AVLNode* root) {
 }
 
 /*****************************************************************************
-* @data  : 2020/4/20
-* @brief : 新建节点
-* @input :
-*   key		: 键值
-*	value	: 信息
-* @output:
-*   node	: 新节点
+* @date    2020/4/20
+* @brief   新建节点
+* @param   key		键值
+* @param   value	信息
+* @return  node     新节点
 *****************************************************************************/
 AVLNode* new_node(int key, int value) {
     AVLNode* node = (AVLNode*)malloc(sizeof(AVLNode));
@@ -264,14 +262,12 @@ AVLNode* new_node(int key, int value) {
 }
 
 /*****************************************************************************
-* @data  : 2020/4/19
-* @brief : 插入数据，创建平衡树
-* @input :
-*   root	: 树
-*	key		: 键值
-*	value	: 信息
-* @output:
-*   node    : 树根节点
+* @date    2020/4/19
+* @brief   插入数据，创建平衡树
+* @param   root     树
+* @param   key      键值
+* @param   value    信息
+* @return  node     树根节点
 *****************************************************************************/
 AVLNode* insert(AVLNode* node, int key, int value) {
     if (node == NULL) {
@@ -407,12 +403,11 @@ AVLNode* balance_node(AVLNode* root) {
 }
 
 /*****************************************************************************
-* @data  : 2020/4/19
-* @brief : 水平画树
-* @input :
-*   root: 树
-*	left: 判断左右
-*	str : 可变字符串
+* @date   2020/4/19
+* @brief  水平画树
+* @param  root  树
+* @param  left  判断左右
+* @param  str   可变字符串
 *****************************************************************************/
 void draw_level(AVLNode* root, bool left, char* str) {
     if (root->right) {
@@ -467,13 +462,11 @@ AVLNode* find_max(AVLNode* node) {
 }
 
 /*****************************************************************************
-* @data  : 2020/4/21
-* @brief : 删除平衡树节点
-* @input :
-*   root: 树
-*	key	: 键值
-* @output:
-*   root: 树根节点
+* @date    2020/4/21
+* @brief   删除平衡树节点
+* @param   root 树
+* @param   key	键值
+* @return  root 树根节点
 *****************************************************************************/
 AVLNode* delete_node(AVLNode* root, int key) {
     if (root == NULL) {
