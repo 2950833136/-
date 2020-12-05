@@ -14,38 +14,38 @@ void swap(int array[], int x, int y) {
 }
 
 // 从大到小排序
-void Down(int array[], int i, int n) {
-    int child = 2 * i + 1;
-    int key   = array[i];
-    while (child < n) {
-        if (array[child] > array[child + 1] && child + 1 < n) {
-            child++;
-        }
-        if (key > array[child]) {
-            swap(array, i, child);
-            i = child;
-        } else {
-            break;
-        }
-        child = child * 2 + 1;
-    }
-}
-
-// 从小到大排序
-// void Down(int array[], int i, int n) { // 最后结果就是大顶堆
-//     int parent = i;                    // 父节点下标
-//     int child  = 2 * i + 1;            // 子节点下标
+// void Down(int array[], int i, int n) {
+//     int child = 2 * i + 1;
+//     int key   = array[i];
 //     while (child < n) {
-//         if (array[child] < array[child + 1] && child + 1 < n) { // 判断子节点那个大，大的与父节点比较
+//         if (array[child] > array[child + 1] && child + 1 < n) {
 //             child++;
 //         }
-//         if (array[parent] < array[child]) { // 判断父节点是否小于子节点
-//             swap(array, parent, child);     // 交换父节点和子节点
-//             parent = child;                 // 子节点下标 赋给 父节点下标
+//         if (key > array[child]) {
+//             swap(array, i, child);
+//             i = child;
+//         } else {
+//             break;
 //         }
-//         child = child * 2 + 1; // 换行，比较下面的父节点和子节点
+//         child = child * 2 + 1;
 //     }
 // }
+
+// 从小到大排序
+void Down(int array[], int i, int n) { // 最后结果就是大顶堆
+    int parent = i;                    // 父节点下标
+    int child  = 2 * i + 1;            // 子节点下标
+    while (child < n) {
+        if (array[child] < array[child + 1] && child + 1 < n) { // 判断子节点那个大，大的与父节点比较
+            child++;
+        }
+        if (array[parent] < array[child]) { // 判断父节点是否小于子节点
+            swap(array, parent, child);     // 交换父节点和子节点
+            parent = child;                 // 子节点下标 赋给 父节点下标
+        }
+        child = child * 2 + 1; // 换行，比较下面的父节点和子节点
+    }
+}
 
 void BuildHeap(int array[], int size) {
     for (int i = size / 2 - 1; i >= 0; i--) { // 倒数第二排开始, 创建大顶堆，必须从下往上比较
