@@ -3,14 +3,14 @@
 #include <malloc.h>
 #include <stdio.h>
 
-typedef struct ListNode {
-    int              data;
-    struct ListNode* next;
-} LN;
+typedef struct BucketNode {
+    int                data;
+    struct BucketNode* next;
+} BN;
 
 // 输出线性表
-void displayL(LN* L) {
-    LN* p = L;                  // p 指向首结点
+void displayL(BN* L) {
+    BN* p = L;                  // p 指向首结点
     while (p != NULL) {         // 不为空，依次遍历
         printf("%d ", p->data); // 打印
         p = p->next;            // p 移向下一个节点
@@ -32,8 +32,8 @@ void displayA(int* nums, int numsSize) {
  * @param   head    头指针
  * @param   list    顺序数据链表
  ***************************************************************************/
-LN* Merge(LN* head, LN* list) {
-    LN* last   = head;
+BN* Merge(BN* head, BN* list) {
+    BN* last   = head;
     last->next = list->next;
     while (last->next) {
         last = last->next;
@@ -47,10 +47,10 @@ LN* Merge(LN* head, LN* list) {
  * @param   list    代表第几个桶的链表
  * @param   value   数据
  ***************************************************************************/
-void insert(LN* list, int value) {
-    LN* prev = list;
-    LN* curr = list->next;
-    LN* node = (LN*)malloc(sizeof(LN));
+void insert(BN* list, int value) {
+    BN* prev = list;
+    BN* curr = list->next;
+    BN* node = (BN*)malloc(sizeof(BN));
 
     node->data = value;
     node->next = NULL;
@@ -75,9 +75,9 @@ void insert(LN* list, int value) {
  ***************************************************************************/
 void BucketSort(int array[], int size, int num) {
     // 申请内存，二级指针，初始化，可以理解头指针没数据，从下一个开始存数数据
-    LN** buckets = (LN**)malloc(sizeof(LN*) * num);
+    BN** buckets = (BN**)malloc(sizeof(BN*) * num);
     for (int i = 0; i < num; i++) {
-        *(buckets + i)         = (LN*)malloc(sizeof(LN));
+        *(buckets + i)         = (BN*)malloc(sizeof(BN));
         (*(buckets + i))->next = NULL;
     }
 
@@ -105,9 +105,9 @@ void BucketSort(int array[], int size, int num) {
     }
 
     // // 3. 合并链表
-    // LN* head   = (LN*)malloc(sizeof(LN));
+    // BN* head   = (BN*)malloc(sizeof(BN));
     // head->next = NULL;
-    // LN* last   = Merge(head, *(buckets + 0));
+    // BN* last   = Merge(head, *(buckets + 0));
     // for (int i = 1; i < num; i++) {
     //     if ((*(buckets + i))->next) {
     //         last = Merge(last, *(buckets + i));
@@ -125,7 +125,7 @@ void BucketSort(int array[], int size, int num) {
     int index = 0;
     for (int i = 0; i < num; i++) {
         if ((*(buckets + i))->next != NULL) {
-            LN* temp = (*(buckets + i))->next;
+            BN* temp = (*(buckets + i))->next;
             while (temp != NULL) {
                 array[index++] = temp->data;
                 temp           = temp->next;
