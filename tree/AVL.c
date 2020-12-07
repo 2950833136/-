@@ -1,5 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS // VS 忽略安全警告
-
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +20,6 @@ typedef struct _Adelson_Velsky_Landis_Node {    // 树结构体节点
 int      max(int a, int b);                         // 最大值
 int      height(AVLNode* root);                     // 通过结构体，直接返回树高度
 int      height_update(AVLNode* root);              // 更新树的高度
-AVLNode* new_node(int key, int value);              // 新建节点，赋初值
 AVLNode* insert(AVLNode* root, int key, int value); // 插入节点
 AVLNode* find_min(AVLNode* root);                   // 查找子结点中最小的节点
 AVLNode* find_max(AVLNode* root);                   // 查找子结点中最大的节点
@@ -44,9 +42,9 @@ void draw_level(AVLNode* root, bool left, char* str); // 画树，左右子树
 
 int main() {
     AVLNode* root = NULL;
-    /*
-    *	大数据测试
-    */
+    /**
+     * 大数据测试
+     */
     int nums[]   = {6, 8, 2, 3, 5, 4, 7, 1, 9, 6};
     int numsSize = sizeof(nums) / sizeof(nums[0]);
     // 添加
@@ -57,11 +55,11 @@ int main() {
     }
 
     // 删除
-    // for (int i = 0; i < numsSize; i++) {
-    //     root = delete_node(root, nums[i]);
-    //     printf("delete %d tree:\n", nums[i]);
-    //     draw(root);
-    // }
+    for (int i = 0; i < numsSize; i++) {
+        root = delete_node(root, nums[i]);
+        printf("delete %d tree:\n", nums[i]);
+        draw(root);
+    }
 
     return 0;
 }
@@ -89,24 +87,6 @@ int height_update(AVLNode* root) {
 }
 
 /*****************************************************************************
-* @date    2020/4/20
-* @brief   新建节点
-* @param   key		键值
-* @param   value	信息
-* @return  node     新节点
-*****************************************************************************/
-AVLNode* new_node(int key, int value) {
-    AVLNode* node = (AVLNode*)malloc(sizeof(AVLNode));
-    node->key     = key;
-    node->value   = value;
-    node->height  = 1;
-    node->parent  = NULL;
-    node->left    = NULL;
-    node->right   = NULL;
-    return node;
-}
-
-/*****************************************************************************
 * @date    2020/4/19
 * @brief   插入数据，创建平衡树
 * @param   root     树
@@ -116,10 +96,15 @@ AVLNode* new_node(int key, int value) {
 *****************************************************************************/
 AVLNode* insert(AVLNode* node, int key, int value) {
     if (node == NULL) {
-        node = new_node(key, value);
+        AVLNode* node = (AVLNode*)malloc(sizeof(AVLNode));
+        node->key     = key;
+        node->value   = value;
+        node->height  = 1;
+        node->parent  = NULL;
+        node->left    = NULL;
+        node->right   = NULL;
         return node;
     }
-
     if (key < node->key) {
         node->left = insert(node->left, key, value);
     } else {
@@ -229,17 +214,14 @@ AVLNode* balance_node(AVLNode* root) {
     if (get_balance(root) > 1 && get_balance(root->left) > 0) {
         // LL型，单右
         return rotate_right(root);
-    }
-    if (get_balance(root) > 1 && get_balance(root->left) <= 0) {
+    } else if (get_balance(root) > 1 && get_balance(root->left) <= 0) {
         // LR型，先左后右
         root->left = rotate_left(root->left);
         return rotate_right(root);
-    }
-    if (get_balance(root) < -1 && get_balance(root->right) <= 0) {
+    } else if (get_balance(root) < -1 && get_balance(root->right) <= 0) {
         // RR型，单左
         return rotate_left(root);
-    }
-    if (get_balance(root) < -1 && get_balance(root->right) > 0) {
+    } else if (get_balance(root) < -1 && get_balance(root->right) > 0) {
         // RL型，先右后左
         root->right = rotate_right(root->right);
         return rotate_left(root);
@@ -274,11 +256,9 @@ void draw_level(AVLNode* root, bool left, char* str) {
 void draw(AVLNode* root) {
     char str[STR_SIZE];
     memset(str, '\0', STR_SIZE);
-
     if (root == NULL) {
         return;
     }
-
     if (root->right) {
         draw_level(root->right, false, str);
     }
@@ -319,10 +299,8 @@ AVLNode* delete_node(AVLNode* root, int key) {
     }
     if (key < root->key) {
         root->left = delete_node(root->left, key);
-        balance_node(root->left);
     } else if (key > root->key) {
         root->right = delete_node(root->right, key);
-        balance_node(root->right);
     } else {
         if (root->left != NULL && root->right != NULL) {
             if (height(root->left) < height(root->right)) {
@@ -349,11 +327,10 @@ AVLNode* delete_node(AVLNode* root, int key) {
                 root->left       = delete_node(root->left, maxNode->key);
             }
         } else {
-            AVLNode* tmp = root;
-            root         = (root->left != NULL) ? root->left : root->right;
-            delete tmp;
+            root = (root->left != NULL) ? root->left : root->right;
         }
     }
+    root = balance_node(root);
     height_update(root);
     return root;
 }

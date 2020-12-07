@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <malloc.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -62,11 +63,11 @@ void DeleteCase6(RBTNode* n);
 void draw(RBTNode* root);                             // 画树，根节点
 void draw_level(RBTNode* root, bool left, char* str); // 画树，左右子树
 
-// RBTNode* NIL = (RBTNode*)malloc(sizeof(RBTNode));
-RBTNode* NIL = NewNode(0, BLACK, NULL, NULL, NULL);
+RBTNode* NIL = NULL;
 
 int main() {
     RBTNode* root = NULL;
+    NIL           = NewNode(0, BLACK, NULL, NULL, NULL);
 
     // 插入
     int in[]   = {9, 5, 1, 3, 7, 8, 6, 2, 4};
