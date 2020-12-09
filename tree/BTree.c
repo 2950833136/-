@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX 3
 #define MIN 2
@@ -24,8 +25,7 @@ struct BTreeNode* createNode(int key, struct BTreeNode* child) {
 }
 
 // Add value to the node
-void addValToNode(int key, int pos, struct BTreeNode* node,
-                  struct BTreeNode* child) {
+void addValToNode(int key, int pos, struct BTreeNode* node, struct BTreeNode* child) {
     int j = node->count;
     while (j > pos) {
         node->key[j + 1]    = node->key[j];
@@ -38,8 +38,7 @@ void addValToNode(int key, int pos, struct BTreeNode* node,
 }
 
 // Split the node
-void splitNode(int key, int* pval, int pos, struct BTreeNode* node,
-               struct BTreeNode* child, struct BTreeNode** newNode) {
+void splitNode(int key, int* pval, int pos, struct BTreeNode* node, struct BTreeNode* child, struct BTreeNode** newNode) {
     int median, j;
 
     if (pos > MIN)
@@ -68,8 +67,7 @@ void splitNode(int key, int* pval, int pos, struct BTreeNode* node,
 }
 
 // Set the value in the node
-int setValueInNode(int key, int* pval,
-                   struct BTreeNode* node, struct BTreeNode** child) {
+int setValueInNode(int key, int* pval, struct BTreeNode* node, struct BTreeNode** child) {
     int pos;
     if (!node) {
         *pval  = key;
@@ -322,7 +320,7 @@ int main() {
     traversal(root);
     printf("\n");
 
-    deleteNode(20, root);
-    printf("\n");
-    traversal(root);
+    // deleteNode(20, root);
+    // printf("\n");
+    // traversal(root);
 }
