@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void display(int array[], int size) {
+void display(int* array, int size) {
     for (int i = 0; i < size; i++) {
         printf("%d ", array[i]);
     }
@@ -51,10 +51,10 @@ void QuickSort(int array[], int low, int high) {
 
 // 合并到一起快速排序
 // void QuickSort(int array[], int low, int high) {
-//     int i   = low;
-//     int j   = high;
-//     int key = array[i];
 //     if (low < high) {
+//         int i   = low;
+//         int j   = high;
+//         int key = array[i];
 //         while (i < j) {
 //             while (i < j && array[j] >= key) {
 //                 j--;
@@ -69,10 +69,9 @@ void QuickSort(int array[], int low, int high) {
 //                 array[j] = array[i];
 //             }
 //         }
-//         array[i]     = key;
-//         int standard = i;
-//         QuickSort(array, low, standard - 1);
-//         QuickSort(array, standard + 1, high);
+//         array[i] = key;
+//         QuickSort(array, low, i - 1);
+//         QuickSort(array, i + 1, high);
 //     }
 // }
 

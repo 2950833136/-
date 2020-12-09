@@ -7,11 +7,12 @@
 #define MAX_SIZE 1024
 #define STR_SIZE 1024
 
-typedef struct Node {       // 定义二叉链
-    char         data;      // 数据元素
-    struct Node* lchild;    // 指向左孩子节点
-    struct Node* rchild;    // 指向右孩子节点
-} BTNode;                   // struct Node 的别名
+typedef struct Node {    // 定义二叉链
+    char         data;   // 数据元素
+    struct Node* lchild; // 指向左孩子节点
+    struct Node* rchild; // 指向右孩子节点
+} BTNode;                // struct Node 的别名
+
 typedef struct Quene {      // 定义顺序队
     int     front;          // 队头指针
     int     rear;           // 队尾指针
@@ -42,12 +43,16 @@ void levelOrder(BTNode*& BT);                     // 层次遍历
 void draw_level(BTNode* root, bool left, char* str); // 画分支
 void draw(BTNode* root);                             // 画根节点
 
-// 层次遍历
+/***************************************************************************
+ * @date    2019/12/08
+ * @brief   层次遍历二叉树
+ * @param   BT  二叉树根节点
+ ***************************************************************************/
 void levelOrder(BTNode*& BT) {
-    SqQueue* q;   // 定义队列
-    initQueue(q); // 初始化队列
-    if (BT != NULL) {
-        enQueue(q, BT); // 根节点指针进队列
+    SqQueue* q;       // 定义队列
+    initQueue(q);     // 初始化队列
+    if (BT != NULL) { // 根节点指针进队列
+        enQueue(q, BT);
     }
     // 一层一层的把节点存入队列，当没有孩子节点时就不再循环
     while (emptyQueue(q) != true) { // 队不为空循环
@@ -193,7 +198,7 @@ void postOrder(BTNode*& BT) {
 /*****************************************************************************
 * @date   2020/4/19
 * @brief  水平画树
-* @param  root	树
+* @param  root	二叉树节点
 * @param  left	判断左右
 * @param  str 	可变字符串
 *****************************************************************************/
@@ -217,7 +222,7 @@ void draw_level(BTNode* root, bool left, char* str) {
 /*****************************************************************************
 * @date   2020/4/19
 * @brief  根节点画树
-* @param  root	树
+* @param  root	二叉树根节点
 *****************************************************************************/
 void draw(BTNode* root) {
     char str[STR_SIZE];
