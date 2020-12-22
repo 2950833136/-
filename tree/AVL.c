@@ -120,7 +120,7 @@ int get_balance(AVLNode* root) {
     if (root == NULL) {
         return 0;
     }
-    return height_update(root->left) - height_update(root->right);
+    return height(root->left) - height(root->right);
 }
 
 /*****************************************************************************
