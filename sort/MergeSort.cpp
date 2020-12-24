@@ -8,38 +8,45 @@ void display(int array[], int size) {
 }
 
 // 第一个是排序前的数组，第二个是每次排序后数组
-void Merge(int array5[], int array6[], int low, int mid, int high) {
+void Merge(int input[], int output[], int low, int mid, int high) {
     int i = low;                        // 第一块初始下标
     int j = mid + 1;                    // 第二块初始下标
     int k = low;                        // 充当合并块的下标
     while ((i <= mid) && (j <= high)) { // 判断遍历两个分块结束
-        if (array5[i] <= array5[j]) {   // 第一块第 1 个值比第二块第 1 值小
-            array6[k++] = array5[i++];  // 把小的值存入第二个数组，即第一块第 1 个值
+        if (input[i] <= input[j]) {     // 第一块第 i 个值比第二块第 j 值小
+            output[k++] = input[i++];   // 把小的值存入第二个数组，即第一块第 i 个值
         } else {
-            array6[k++] = array5[j++]; // 小的值存入第二个数组，即第二块第 1 个值
+            output[k++] = input[j++]; // 小的值存入第二个数组，即第二块第 j 个值
         }
     }
-    while (i <= mid) {             // 第一块没遍历完，而第二块遍历结束，说明第一块剩余值都大于第二块
-        array6[k++] = array5[i++]; // 直接把剩余第一块数据都存入第二个数组
+    while (i <= mid) {            // 第一块没遍历完，而第二块遍历结束，说明第一块剩余值都大于第二块
+        output[k++] = input[i++]; // 直接把剩余第一块数据都存入第二个数组
     }
-    while (j <= high) {            // 第二块没遍历完，而第一块遍历结束，说明第二块剩余值都大于第一块
-        array6[k++] = array5[j++]; // 直接把剩余第二块数据都存入第二个数组
+    while (j <= high) {           // 第二块没遍历完，而第一块遍历结束，说明第二块剩余值都大于第一块
+        output[k++] = input[j++]; // 直接把剩余第二块数据都存入第二个数组
     }
 }
 
 // 第一个是排序前的数组，第二个是每次排序后数组
-void MergePass(int array3[], int array4[], int length, int size) {
-    int i = 0;                                                        // i 指向第一个分块归并的起始点
-    while (i + 2 * length - 1 < size) {                               // 分块
-        Merge(array3, array4, i, i + length - 1, i + 2 * length - 1); // 归并分块排序
-        i = i + 2 * length;                                           // 归并间隔，指向下一个分块的起始点
+void MergePass(int input[], int output[], int length, int size) {
+    int i = 0;                                                       // i 指向第一个分块归并的起始点
+    while (i + 2 * length - 1 < size) {                              // 分块
+        Merge(input, output, i, i + length - 1, i + 2 * length - 1); // 归并分块排序
+        i = i + 2 * length;                                          // 归并间隔，指向下一个分块的起始点
     }
 
-    if ((i + length - 1) < size - 1) { //剩下两个块，其中一个小于length
-        Merge(array3, array4, i, i + length - 1, size - 1);
-    } else { //剩下分块为奇数
+    /**
+     * 1. 不足以分成两个完整块
+     *      - 前一个满足 length   (i + length - 1) < size - 1       
+     *      - 后一个小于 length   (i + 2 * length - 1) > size - 1   
+     * 2. 或者剩下分块小于等于一个分块
+     *      - 将剩余数据复制到 output 中
+     */
+    if ((i + length - 1) < size - 1) {
+        Merge(input, output, i, i + length - 1, size - 1);
+    } else {
         for (int j = i; j < size; j++) {
-            array4[j] = array3[j]; //将剩余数据复制到array4中
+            output[j] = input[j];
         }
     }
 }
