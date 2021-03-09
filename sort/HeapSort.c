@@ -18,7 +18,7 @@ void swap(int array[], int x, int y) {
 //     int child = 2 * i + 1;
 //     int key   = array[i];
 //     while (child < n) {
-//         if (array[child] > array[child + 1] && child + 1 < n) {
+//         if (child + 1 < n && array[child] > array[child + 1]) {
 //             child++;
 //         }
 //         if (key > array[child]) {
@@ -36,7 +36,7 @@ void Down(int array[], int i, int n) { // 最后结果就是大顶堆
     int parent = i;                    // 父节点下标
     int child  = 2 * i + 1;            // 子节点下标
     while (child < n) {
-        if (array[child] < array[child + 1] && child + 1 < n) { // 判断子节点那个大，大的与父节点比较
+        if (child + 1 < n && array[child] < array[child + 1]) { // 判断子节点那个大，大的与父节点比较
             child++;
         }
         if (array[parent] < array[child]) { // 判断父节点是否小于子节点
