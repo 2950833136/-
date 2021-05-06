@@ -8,16 +8,16 @@
         "iostream": "cpp",
         "cstdlib": "cpp",
         "*.tcc": "c",
-        "type_traits": "c",
-        "typeinfo": "c",
-        "vector": "cpp",
-        "unordered_map": "cpp",
-        "new": "cpp",
-        "unordered_set": "cpp",
-        "map": "cpp"
+        "exception": "c",
+        "memory_resource": "c",
+        "iosfwd": "c",
+        "new": "c",
+        "streambuf": "c",
+        "cstring": "cpp",
+        "ios": "cpp"
     },
-    "editor.formatOnSave": true,
     // Visual Studio  LLVM  Google  Chromium  Mozilla  WebKit
     // "C_Cpp.clang_format_style": "{BasedOnStyle: LLVM}"
-    "C_Cpp.clang_format_style": "file"
+    "C_Cpp.clang_format_style": "file",
+    "editor.formatOnSave": false
 }
