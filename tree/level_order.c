@@ -32,11 +32,14 @@ bool deQueue(SqQueue* q, BTNode** node); // 出队
  * 二叉树函数
  */
 // void createBTNode2(BTNode** BT);                  // 创建二叉树
-int  createBTNode(BTNode** BT, char* str, int n); // 创建二叉树
-void preOrder(BTNode* BT);                        // 前序遍历
-void inOrder(BTNode* BT);                         // 中序遍历
-void postOrder(BTNode* BT);                       // 后序遍历
-void levelOrder(BTNode* BT);                      // 层次遍历
+int  createBTNode(BTNode** BT, char* str, int n);  // 创建二叉树
+void preOrder(BTNode* BT);                         // 前序遍历
+void inOrder(BTNode* BT);                          // 中序遍历
+void postOrder(BTNode* BT);                        // 后序遍历
+void levelOrder(BTNode* BT);                       // 层次遍历
+int  getTreeHeight(BTNode* BT);                    // 树高度
+void levelOrderRecursion(BTNode* node, int level); // 递归核心
+void levelOrder2(BTNode* BT);                      // 层次遍历，递归
 
 /**
  * 画树函数
@@ -46,7 +49,7 @@ void draw(BTNode* root);                             // 画根节点
 
 /***************************************************************************
  * @date    2019/12/08
- * @brief   层次遍历二叉树
+ * @brief   层次遍历二叉树——非递归队列
  * @param   BT  二叉树根节点
  ***************************************************************************/
 void levelOrder(BTNode* BT) {
@@ -68,6 +71,45 @@ void levelOrder(BTNode* BT) {
     }
 }
 
+/***************************************************************************
+ * @date    2019/12/08
+ * @brief   层次遍历二叉树——递归
+ * @param   BT  二叉树根节点
+ ***************************************************************************/
+void levelOrder2(BTNode* BT) {
+    if (BT != NULL) {
+        int depth = getTreeHeight(BT);
+        for (int i = 0; i < depth; i++) {
+            levelOrderRecursion(BT, i);
+        }
+    }
+}
+
+void levelOrderRecursion(BTNode* node, int level) {
+    if (node == NULL || level == -1) {
+        return;
+    }
+    if (level == 0) {
+        printf("%c", node->data);
+    }
+    levelOrderRecursion(node->lchild, level - 1);
+    levelOrderRecursion(node->rchild, level - 1);
+}
+
+int getTreeHeight(BTNode* BT) {
+    int lchildh = 0;
+    int rchildh = 0;
+    int height  = 0;
+    if (BT == NULL) {
+        return 0; // 空树高度为 0
+    } else {
+        lchildh = getTreeHeight(BT->lchild);                           // 求左子树的高度
+        rchildh = getTreeHeight(BT->rchild);                           // 求右子树的高度
+        height  = (lchildh > rchildh) ? (lchildh + 1) : (rchildh + 1); // 求树的高度
+        return height;
+    }
+}
+
 int main() {
     // 例子：ABDH###E##CF##G##
     BTNode* BT;
@@ -79,7 +121,7 @@ int main() {
     }
     // printf("请输入字符串：");
     // createBTNode2(&BT);
-    // draw(BT);
+    draw(BT);
 
     printf("\n先序遍历结果：");
     preOrder(BT);
@@ -92,6 +134,9 @@ int main() {
 
     printf("\n层序遍历结果：");
     levelOrder(BT);
+
+    printf("\n层序遍历结果：");
+    levelOrder2(BT);
 
     return 0;
 }
@@ -202,22 +247,17 @@ void postOrder(BTNode* BT) {
 }
 
 /*****************************************************************************
-* @date   2020/4/19
-* @brief  水平画树
-* @param  node	二叉树节点
-* @param  left	判断左右
-* @param  str 	可变字符串
-*****************************************************************************/
+ * @date   2020/4/19
+ * @brief  水平画树
+ * @param  node	二叉树节点
+ * @param  left	判断左右
+ * @param  str 	可变字符串
+ *****************************************************************************/
 void draw_level(BTNode* node, bool left, char* str) {
     if (node->rchild) {
         draw_level(node->rchild, false, strcat(str, (left ? "|     " : "      ")));
     }
-
-    printf("%s", str);
-    printf("%c", (left ? '\\' : '/'));
-    printf("-----");
-    printf("%c\n", node->data);
-
+    printf("%s%c%s%c\n", str, (left ? '\\' : '/'), "-----", node->data);
     if (node->lchild) {
         draw_level(node->lchild, true, strcat(str, (left ? "      " : "|     ")));
     }
@@ -226,13 +266,13 @@ void draw_level(BTNode* node, bool left, char* str) {
 }
 
 /*****************************************************************************
-* @date   2020/4/19
-* @brief  根节点画树
-* @param  root	二叉树根节点
-*****************************************************************************/
+ * @date   2020/4/19
+ * @brief  根节点画树
+ * @param  root	二叉树根节点
+ *****************************************************************************/
 void draw(BTNode* root) {
     char str[STR_SIZE];
-    memset(str, '\0', STR_SIZE);
+    memset(str, 0, STR_SIZE);
 
     /**
      * 1. 在 windows 下，下面是可执行的
