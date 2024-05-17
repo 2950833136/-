@@ -43,6 +43,9 @@ void draw_level(AVLNode* root, bool left, char* str); // 画树，左右子树
 
 int main()
 {
+#if defined(WIN32) || defined(_WIN32)
+    system("chcp 65001");
+#endif
     AVLNode* root = NULL;
     /**
      * 大数据测试

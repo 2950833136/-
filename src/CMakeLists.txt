@@ -1,4 +1,12 @@
-﻿add_subdirectory(tree/base)
+﻿add_subdirectory(list)
+add_subdirectory(queue)
+add_subdirectory(stack)
+
+add_subdirectory(tree/base)
 add_subdirectory(tree/level_order)
 add_subdirectory(tree/search)
+add_subdirectory(tree/huffman)
 add_subdirectory(tree/avl)
+add_subdirectory(tree/rbt)
+add_subdirectory(tree/b)
+add_subdirectory(tree/b_plus)

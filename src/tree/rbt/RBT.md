@@ -34,7 +34,7 @@ R-B Tree，全称是Red-Black Tree，又称为“红黑树”，它一种特殊�
 
 
 
-![](./../picture/RBT.png)
+![](./assets/RBT.png)
 
  
 
@@ -107,13 +107,13 @@ RBTNode* GetUncle(RBTNode* n) {
 
 &emsp;红黑树是基于二叉查找树，当我们在对红黑树进行插入和删除等操作时，对树做了修改，那么可能会违背红黑树的性质。为了继续保持红黑树的性质，我们可以通过对结点进行重新着色，以及对树进行相关的旋转操作，即修改树中某些结点的颜色及指针结构，来达到对红黑树进行插入或删除结点等操作后，继续保持它的性质。
 
-![动态演示](./../picture/Tree_rotation.gif)
+![动态演示](./assets/Tree_rotation.gif)
 
 &emsp;旋转操作不会导致叶节点顺序的改变（可以理解为旋转操作前后，树的**中序遍历**结果是一致的），旋转过程中也始终受**二叉搜索树**的主要性质约束：**右子节点比父节点大、左子节点比父节点小**。
 
 &emsp;尤其需要注意的是，进行右旋转时，旋转前根的左节点的右节点（例如上图中以 *B* 为根的 *${\beta}$* 节点）会变成根的左节点，根本身则在旋转后会变成新的根的右节点，而在这一过程中，整棵树一直遵守着前面提到的几个约束。相反的左旋转操作亦然。
 
-![静态演示](../picture/Tree_Rotations.png)
+![静态演示](./assets/Tree_Rotations.png)
 
 **注意**：这些都有父节点，旋转后新的根节点连接到原来根节点的父节点。
 
@@ -303,7 +303,7 @@ void InsertCase2(RBTNode* n) {
 
 **情况3**：如果父节点P和父节点U都是红色的，那么它们都可以重新绘制为黑色，而祖父母G则变为红色以保持属性5（从节点到叶子的所有路径都包含相同数量的黑色节点）。由于通过父节点或父节点的任何路径都必须经过祖父母节点，所以这些路径上的黑色节点数没有改变。但是，如果祖父母G是根，那么它现在可能会违反属性2（根是黑色的），如果它有一个红色的父节点，则它可能违反属性4（每个红色节点的两个子节点都是黑色的）。为了解决这个问题，树的红黑修复过程在G上重新运行。
 
-![](./../picture/Red-black_tree_insert_case_3.png)
+![](./assets/Red-black_tree_insert_case_3.png)
 
 
 ```c
@@ -321,7 +321,7 @@ void InsertCase3(RBTNode* n) {
 
 **情况4**: 步骤1：父元素P是红色的，但是U叔叔是黑色的（这意味着P的左或右子元素必须是黑色的）。最终目标是将新节点N旋转到祖父位置，但如果N位于G下子树的“内部”（即，如果N是G的右子节点的左子节点或G的左子节点的右子节点），则这将不起作用。在这个例子中，我们通过一个标记为“P”的子树的旋转（在这个例子中，我们通过一个标记为“P”的子树的旋转来增加它的子路径）。但是P和N都是红色的，所以属性5（从一个节点到它的叶子的所有路径包含相同数量的黑色节点）被保留。属性4（每个红色节点的两个子节点都是黑色的）在步骤2中被恢复。 
 
-![](./../picture/Red-black_tree_insert_case_4.png)
+![](./assets/Red-black_tree_insert_case_4.png)
 
 
 ```c
@@ -345,7 +345,7 @@ void InsertCase4(RBTNode* n) {
 
 **情况4**: 步骤2：新节点N现在确定位于祖父母G下子树的“外部”（左边的子节点或右边的子节点的右边）。在G上做一个右旋转，用P代替G，使P成为N和G的父对象。G是黑色的，它的前一个子P是红色的，因为违反了属性4。切换P和G的颜色。生成的树满足属性4（红色节点有黑色子节点）。从G到N的所有路径都满足了，因为P穿过了所有的路径。 
 
-![](./../picture/Red-black_tree_insert_case_5.png)
+![](./assets/Red-black_tree_insert_case_5.png)
 
 
 
@@ -478,7 +478,7 @@ void DeleteCase1(RBTNode* n) {
 
 **情形二**：S是红色的。在本例中，我们反转P和S的颜色，然后在P处向左旋转，将S变成N的祖父母。注意P必须是黑色的，因为它有一个红色的孩子。结果子树的路径短于一个黑色节点，因此我们还没有完成。现在N有一个黑色的兄弟姐妹和一个红色的父对象，所以我们可以继续执行步骤4、5或6。（它的新兄弟是黑色的，因为它曾经是红色S的子代）在以后的情况下，我们将重新标记N的新兄弟姐妹为S。
 
-![](./../picture/Red-black_tree_delete_case_2.png)
+![](./assets/Red-black_tree_delete_case_2.png)
 
 ```c
 void DeleteCase2(RBTNode* n) {
@@ -501,7 +501,7 @@ void DeleteCase2(RBTNode* n) {
 
 **情形三**：**P**，**S**，**S的孩子**都是黑色。在这种情形下，我们简单的重绘S为红色。结果是通过S的所有路径，它们就是以前*不*通过N的那些路径，都少了一个黑色节点。因为删除N的初始的父亲使通过N的所有路径少了一个黑色节点，这使事情都平衡了起来。但是，通过P的所有路径现在比不通过P的路径少了一个黑色节点，所以仍然违反性质5。要修正这个问题，我们要从**情形1**开始，在P上做重新平衡处理。
 
-![](../picture/Red-black_tree_delete_case_3.png)
+![](./assets/Red-black_tree_delete_case_3.png)
 
 ```c
 void DeleteCase3(RBTNode* n) {
@@ -521,7 +521,7 @@ void DeleteCase3(RBTNode* n) {
 
 **情形四**：**S** 和 **S的孩子** 是黑色，而 **P** 是红色。在这种情况下，我们只需交换 **S** 和 **P** 的颜色。这不会影响经过S的路径上的黑色节点的数量，但它确实会在经过N的路径上的黑色节点的数量上增加一个，以弥补这些路径上删除的黑色节点。
 
-![](../picture/Red-black_tree_delete_case_4.png)
+![](./assets/Red-black_tree_delete_case_4.png)
 
 ```c
 void DeleteCase4(RBTNode* n) {
@@ -541,7 +541,7 @@ void DeleteCase4(RBTNode* n) {
 
 **情形5**: S是黑色，S的左子项是红色，S的右子项是黑色，N是其父项的左子项。在本例中，我们在S处向右旋转，这样S的左子元素成为S的父元素，而N的新同级元素。然后我们交换S和它的新父对象的颜色。所有的路径仍然有相同数量的黑色节点，但是现在N有一个黑色的同级节点，它的右边的子节点是红色的，所以我们进入到**情形6**中。N及其父级都不受此转换的影响。（同样，对于案例6，我们将N的新兄弟标记为S）
 
-![](../picture/Red-black_tree_delete_case_5.png)
+![](./assets/Red-black_tree_delete_case_5.png)
 
 ```c
 void DeleteCase5(RBTNode* n) {
@@ -583,7 +583,7 @@ void DeleteCase5(RBTNode* n) {
 
 在任何情况下，在这些路径上的黑色节点数目都没有改变。所以我们恢复了性质4。在示意图中的白色节点可以是红色或黑色，但是在变换前后都必须指定相同的颜色。
 
-![](../picture/Red-black_tree_delete_case_6.png)
+![](./assets/Red-black_tree_delete_case_6.png)
 
 ```c
 void DeleteCase6(RBTNode* n) {
