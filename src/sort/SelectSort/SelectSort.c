@@ -1,27 +1,34 @@
 #include <stdio.h>
 
-void display(int* array, int size) {
-    for (int i = 0; i < size; i++) {
+void display(int* array, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
         printf("%d ", array[i]);
     }
     printf("\n");
 }
 
-void swap(int array[], int x, int y) {
+void swap(int array[], int x, int y)
+{
     int key  = array[y];
     array[y] = array[x];
     array[x] = key;
 }
 
-void SelectSort(int array[], int size) {
+void SelectSort(int array[], int size)
+{
     // 外循环为排序趟数，size个数进行size-1趟
     // 内循环为每趟比较的次数
-    for (int i = 0; i < size - 1; i++) {
+    for (int i = 0; i < size - 1; i++)
+    {
         // 默认下标最小的为开始数据，记录下标key。
         int key = i;
-        for (int j = i + 1; j < size; j++) {
-            //碰到比它小的，记录覆盖下标
-            if (array[j] < array[key]) {
+        for (int j = i + 1; j < size; j++)
+        {
+            // 碰到比它小的，记录覆盖下标
+            if (array[j] < array[key])
+            {
                 key = j;
             }
         }
@@ -33,11 +40,12 @@ void SelectSort(int array[], int size) {
     }
 }
 
-int main() {
+int main()
+{
     int array[] = {49, 38, 65, 97, 76, 13, 27, 49, 10};
     int size    = sizeof(array) / sizeof(int);
 
-    //打印原始数据
+    // 打印原始数据
     printf("%d\n", size);
     display(array, size);
     SelectSort(array, size);

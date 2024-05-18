@@ -3,15 +3,18 @@
 #include <malloc.h>
 #include <stdio.h>
 
-typedef struct BucketNode {
+typedef struct BucketNode
+{
     int                data;
     struct BucketNode* next;
 } BN;
 
 // 输出线性表
-void displayL(BN* L) {
-    BN* p = L;                  // p 指向首结点
-    while (p != NULL) {         // 不为空，依次遍历
+void displayL(BN* L)
+{
+    BN* p = L; // p 指向首结点
+    while (p != NULL)
+    {                           // 不为空，依次遍历
         printf("%d ", p->data); // 打印
         p = p->next;            // p 移向下一个节点
     }
@@ -19,8 +22,10 @@ void displayL(BN* L) {
 }
 
 // 输出数组
-void displayA(int* nums, int numsSize) {
-    for (int i = 0; i < numsSize; i++) {
+void displayA(int* nums, int numsSize)
+{
+    for (int i = 0; i < numsSize; i++)
+    {
         printf("%d ", nums[i]);
     }
     printf("\n");
@@ -32,10 +37,12 @@ void displayA(int* nums, int numsSize) {
  * @param   head    头指针
  * @param   list    顺序数据链表
  ***************************************************************************/
-BN* Merge(BN* head, BN* list) {
+BN* Merge(BN* head, BN* list)
+{
     BN* last   = head;
     last->next = list->next;
-    while (last->next) {
+    while (last->next)
+    {
         last = last->next;
     }
     return last;
@@ -47,17 +54,22 @@ BN* Merge(BN* head, BN* list) {
  * @param   list    代表第几个桶的链表
  * @param   value   数据
  ***************************************************************************/
-void insert(BN* list, int value) {
+void insert(BN* list, int value)
+{
     BN* prev = list;
     BN* curr = list->next;
     BN* node = (BN*)malloc(sizeof(BN));
 
     node->data = value;
     node->next = NULL;
-    if (curr == NULL) {
+    if (curr == NULL)
+    {
         prev->next = node;
-    } else {
-        while (curr != NULL && curr->data < value) {
+    }
+    else
+    {
+        while (curr != NULL && curr->data < value)
+        {
             prev = curr;
             curr = curr->next;
         }
@@ -73,10 +85,12 @@ void insert(BN* list, int value) {
  * @param   size    数组大小
  * @param   num     几个桶
  ***************************************************************************/
-void BucketSort(int array[], int size, int num) {
+void BucketSort(int array[], int size, int num)
+{
     // 申请内存，二级指针，初始化，可以理解头指针没数据，从下一个开始存数数据
     BN** buckets = (BN**)malloc(sizeof(BN*) * num);
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++)
+    {
         *(buckets + i)         = (BN*)malloc(sizeof(BN));
         (*(buckets + i))->next = NULL;
     }
@@ -84,22 +98,27 @@ void BucketSort(int array[], int size, int num) {
     // 1. 找到最大值和最小值求间隔（桶的大小）
     int max = array[0];
     int min = array[0];
-    for (int i = 0; i < size; i++) {
-        if (array[i] > max) {
+    for (int i = 0; i < size; i++)
+    {
+        if (array[i] > max)
+        {
             max = array[i];
         }
-        if (array[i] < min) {
+        if (array[i] < min)
+        {
             min = array[i];
         }
     }
     int space = ((max - min) / num) + 1;
 
     // 2. 一个一个分桶排序
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
+    {
         int n = (array[i] - min) / space;
         insert(*(buckets + n), array[i]);
     }
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++)
+    {
         printf("第 %d 个桶数据: ", i);
         displayL((*(buckets + i))->next);
     }
@@ -123,10 +142,13 @@ void BucketSort(int array[], int size, int num) {
 
     // 3+4. 当然也可以不合并链表，直接把数据返回数组
     int index = 0;
-    for (int i = 0; i < num; i++) {
-        if ((*(buckets + i))->next != NULL) {
+    for (int i = 0; i < num; i++)
+    {
+        if ((*(buckets + i))->next != NULL)
+        {
             BN* temp = (*(buckets + i))->next;
-            while (temp != NULL) {
+            while (temp != NULL)
+            {
                 array[index++] = temp->data;
                 temp           = temp->next;
             }
@@ -134,8 +156,12 @@ void BucketSort(int array[], int size, int num) {
     }
 }
 
-int main() {
-    int array[]   = {49, 65, 97, 76, 13, 49, 10, 8, 21};
+int main()
+{
+#if defined(WIN32) || defined(_WIN32)
+    system("chcp 65001");
+#endif
+    int array[] = {49, 38, 65, 97, 76, 13, 27, 49, 10};
     int size      = sizeof(array) / sizeof(int);
     int BUCKETNUM = 5;
 
