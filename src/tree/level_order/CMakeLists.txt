@@ -1,2 +1,2 @@
 ﻿# 预编译
-CreateTarget(level_order "Exe" "tree")
+CreateTarget(tree_level_order "Exe" "tree")

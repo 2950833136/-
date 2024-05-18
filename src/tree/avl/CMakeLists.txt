@@ -1,2 +1,2 @@
 ﻿# 预编译
-CreateTarget(avl "Exe" "tree")
+CreateTarget(tree_avl "Exe" "tree")

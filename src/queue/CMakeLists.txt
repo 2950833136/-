@@ -1,2 +1,2 @@
 ﻿# 预编译
-CreateTarget(sequence_base "Exe" "queue")
+CreateTarget(queue_base "Exe" "queue")

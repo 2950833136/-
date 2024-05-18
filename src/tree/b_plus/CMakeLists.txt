@@ -1,2 +1,2 @@
 ﻿# 预编译
-CreateTarget(b_plus "Exe" "tree")
+CreateTarget(tree_b_plus "Exe" "tree")

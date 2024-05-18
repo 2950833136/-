@@ -1,2 +1,2 @@
 ﻿# 预编译
-CreateTarget(rbt "Exe" "tree")
+CreateTarget(tree_rbt "Exe" "tree")

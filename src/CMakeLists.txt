@@ -10,3 +10,8 @@ add_subdirectory(tree/avl)
 add_subdirectory(tree/rbt)
 add_subdirectory(tree/b)
 add_subdirectory(tree/b_plus)
+
+add_subdirectory(graph/base)
+add_subdirectory(graph/traversal)
+add_subdirectory(graph/dijkstra)
+add_subdirectory(graph/floyd)

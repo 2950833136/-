@@ -1,2 +1,2 @@
 ﻿# 预编译
-CreateTarget(huffman "Exe" "tree")
+CreateTarget(tree_huffman "Exe" "tree")

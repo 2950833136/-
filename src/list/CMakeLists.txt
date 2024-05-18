@@ -1,2 +1,2 @@
 ﻿# 预编译
-CreateTarget(link_list "Exe" "list")
+CreateTarget(list_base "Exe" "list")
